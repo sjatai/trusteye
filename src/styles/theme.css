@@ -1,0 +1,68 @@
+:root {
+  /* Subtle Gradient Colors */
+  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --gradient-success: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+  --gradient-warning: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+  --gradient-info: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  --gradient-luxury: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  
+  /* Glass Effects */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  
+  /* Shadows */
+  --shadow-luxury: 0 4px 16px rgba(99, 102, 241, 0.08);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+@import "tailwindcss";
+
+@layer base {
+  * {
+    @apply border-slate-200;
+  }
+  
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+
+  h1 {
+    @apply text-[24px] font-bold leading-tight;
+  }
+
+  h2 {
+    @apply text-[18px] font-semibold leading-tight;
+  }
+
+  h3 {
+    @apply text-[15px] font-semibold leading-snug;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  }
+  
+  .gradient-luxury {
+    background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .shadow-luxury {
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+  }
+}

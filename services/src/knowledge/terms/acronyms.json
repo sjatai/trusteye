@@ -1,0 +1,32 @@
+{
+  "acronyms": [
+    { "acronym": "SMS", "expansion": "Short Message Service", "context": "text messaging" },
+    { "acronym": "CTA", "expansion": "Call to Action", "context": "marketing button or link" },
+    { "acronym": "CTR", "expansion": "Click-Through Rate", "context": "percentage of clicks" },
+    { "acronym": "ROI", "expansion": "Return on Investment", "context": "revenue vs cost" },
+    { "acronym": "KPI", "expansion": "Key Performance Indicator", "context": "metrics" },
+    { "acronym": "CRM", "expansion": "Customer Relationship Management", "context": "customer data" },
+    { "acronym": "AOV", "expansion": "Average Order Value", "context": "average purchase amount" },
+    { "acronym": "CAC", "expansion": "Customer Acquisition Cost", "context": "cost to acquire customer" },
+    { "acronym": "CLV", "expansion": "Customer Lifetime Value", "context": "total customer value" },
+    { "acronym": "LTV", "expansion": "Lifetime Value", "context": "same as CLV" },
+    { "acronym": "NPS", "expansion": "Net Promoter Score", "context": "customer loyalty metric" },
+    { "acronym": "CSAT", "expansion": "Customer Satisfaction", "context": "satisfaction score" },
+    { "acronym": "A/B", "expansion": "A/B Testing", "context": "split testing" },
+    { "acronym": "SEO", "expansion": "Search Engine Optimization", "context": "organic search" },
+    { "acronym": "SEM", "expansion": "Search Engine Marketing", "context": "paid search" },
+    { "acronym": "PPC", "expansion": "Pay Per Click", "context": "paid advertising" },
+    { "acronym": "CPM", "expansion": "Cost Per Mille", "context": "cost per 1000 impressions" },
+    { "acronym": "CPC", "expansion": "Cost Per Click", "context": "paid ad cost" },
+    { "acronym": "ROAS", "expansion": "Return on Ad Spend", "context": "advertising ROI" },
+    { "acronym": "UTM", "expansion": "Urchin Tracking Module", "context": "URL tracking parameters" },
+    { "acronym": "FB", "expansion": "Facebook", "context": "social platform" },
+    { "acronym": "IG", "expansion": "Instagram", "context": "social platform" },
+    { "acronym": "VIP", "expansion": "Very Important Person", "context": "high-value customer" },
+    { "acronym": "BOGO", "expansion": "Buy One Get One", "context": "promotional offer" },
+    { "acronym": "OEM", "expansion": "Original Equipment Manufacturer", "context": "factory parts" },
+    { "acronym": "DMS", "expansion": "Dealer Management System", "context": "dealership software" },
+    { "acronym": "BDC", "expansion": "Business Development Center", "context": "sales team" },
+    { "acronym": "MSRP", "expansion": "Manufacturer's Suggested Retail Price", "context": "vehicle price" }
+  ]
+}

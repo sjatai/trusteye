@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(source:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npx tsc:*)",
+      "Bash(python3:*)",
+      "Bash(tee:*)",
+      "Bash(node:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(pkill:*)",
+      "Bash(__NEW_LINE_01fdda487c4b3d27__ echo \"\")",
+      "Bash(# Check Resend API key status grep -q \"\"RESEND_API_KEY\"\" /Users/sj/dev/kq-studio/services/.env && echo \"\"RESEND_API_KEY is set\"\" || echo \"\"RESEND_API_KEY missing\"\" # Check TEST_EMAIL grep \"\"TEST_EMAIL\"\" /Users/sj/dev/kq-studio/services/.env)",
+      "Bash(lsof:*)",
+      "Bash(npm run test:run:*)"
+    ]
+  }
+}

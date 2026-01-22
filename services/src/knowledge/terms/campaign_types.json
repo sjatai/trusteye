@@ -1,0 +1,84 @@
+{
+  "campaign_types": [
+    {
+      "id": "win-back",
+      "name": "Win-Back Campaign",
+      "aliases": ["winback", "win back", "re-engage", "reengagement", "bring back", "return"],
+      "description": "Re-engage inactive or lapsed customers",
+      "default_channels": ["email", "sms"],
+      "typical_audience": "inactive_customers"
+    },
+    {
+      "id": "loyalty",
+      "name": "Loyalty Campaign",
+      "aliases": ["loyalty program", "rewards", "vip", "repeat customer", "loyal customer"],
+      "description": "Reward and retain loyal customers",
+      "default_channels": ["email", "demo-site"],
+      "typical_audience": "loyal_customers"
+    },
+    {
+      "id": "promotional",
+      "name": "Promotional Campaign",
+      "aliases": ["promo", "sale", "discount", "offer", "deal", "special"],
+      "description": "Drive sales with special offers",
+      "default_channels": ["email", "sms", "social"],
+      "typical_audience": "all_customers"
+    },
+    {
+      "id": "referral",
+      "name": "Referral Campaign",
+      "aliases": ["refer a friend", "word of mouth", "recommendations", "invite"],
+      "description": "Encourage customers to refer others",
+      "default_channels": ["email", "sms"],
+      "typical_audience": "satisfied_customers"
+    },
+    {
+      "id": "review",
+      "name": "Review Request Campaign",
+      "aliases": ["review request", "feedback", "testimonial", "rate us", "google review"],
+      "description": "Request reviews from satisfied customers",
+      "default_channels": ["email", "sms"],
+      "typical_audience": "recent_purchasers"
+    },
+    {
+      "id": "product-launch",
+      "name": "Product Launch Campaign",
+      "aliases": ["new model", "new arrival", "launch", "introducing", "announcement"],
+      "description": "Announce new products or models",
+      "default_channels": ["email", "social", "demo-site"],
+      "typical_audience": "interested_customers"
+    },
+    {
+      "id": "event",
+      "name": "Event Campaign",
+      "aliases": ["event", "invitation", "open house", "test drive", "service clinic"],
+      "description": "Promote events and drive attendance",
+      "default_channels": ["email", "sms", "social"],
+      "typical_audience": "local_customers"
+    },
+    {
+      "id": "nurture",
+      "name": "Nurture Campaign",
+      "aliases": ["nurture", "drip", "follow up", "education", "onboarding"],
+      "description": "Educate and nurture leads over time",
+      "default_channels": ["email"],
+      "typical_audience": "leads"
+    },
+    {
+      "id": "seasonal",
+      "name": "Seasonal Campaign",
+      "aliases": ["holiday", "summer", "winter", "spring", "fall", "black friday", "memorial day"],
+      "description": "Leverage seasonal events and holidays",
+      "default_channels": ["email", "social", "demo-site"],
+      "typical_audience": "all_customers"
+    },
+    {
+      "id": "service-reminder",
+      "name": "Service Reminder Campaign",
+      "aliases": ["service due", "maintenance", "oil change", "inspection", "recall", "service reminder", "service reminders"],
+      "description": "Remind customers about service needs",
+      "default_channels": ["email", "sms"],
+      "typical_audience": "service_due_customers"
+    }
+  ]
+}

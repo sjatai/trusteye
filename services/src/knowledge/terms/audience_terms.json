@@ -1,0 +1,73 @@
+{
+  "audience_segments": [
+    {
+      "id": "all_customers",
+      "name": "All Customers",
+      "aliases": ["everyone", "all", "entire database", "all contacts", "whole list"],
+      "description": "Full customer database"
+    },
+    {
+      "id": "inactive_customers",
+      "name": "Inactive Customers",
+      "aliases": ["inactive", "lapsed", "churned", "dormant", "haven't visited", "havent visited", "no activity", "absent", "90 days", "not visited"],
+      "description": "Customers with no recent activity",
+      "default_days": 90
+    },
+    {
+      "id": "loyal_customers",
+      "name": "Loyal Customers",
+      "aliases": ["loyal", "vip", "repeat", "regulars", "frequent", "best customers", "top customers"],
+      "description": "High-value repeat customers"
+    },
+    {
+      "id": "satisfied_customers",
+      "name": "Satisfied Customers",
+      "aliases": ["satisfied", "happy", "5 star", "five star", "promoters", "positive"],
+      "description": "Customers who gave positive feedback"
+    },
+    {
+      "id": "dissatisfied_customers",
+      "name": "Dissatisfied Customers",
+      "aliases": ["unhappy", "negative", "1 star", "2 star", "detractors", "complained"],
+      "description": "Customers who gave negative feedback"
+    },
+    {
+      "id": "recent_purchasers",
+      "name": "Recent Purchasers",
+      "aliases": ["recent buyers", "just bought", "new purchasers", "recent sales"],
+      "description": "Customers who recently made a purchase",
+      "default_days": 30
+    },
+    {
+      "id": "leads",
+      "name": "Leads",
+      "aliases": ["leads", "prospects", "potential customers", "inquiries", "interested"],
+      "description": "People who have shown interest but not purchased"
+    },
+    {
+      "id": "service_due_customers",
+      "name": "Service Due Customers",
+      "aliases": ["service due", "maintenance due", "oil change due", "inspection due"],
+      "description": "Customers whose vehicles need service"
+    },
+    {
+      "id": "local_customers",
+      "name": "Local Customers",
+      "aliases": ["local", "nearby", "in area", "close by", "neighborhood"],
+      "description": "Customers within geographic proximity"
+    },
+    {
+      "id": "interested_customers",
+      "name": "Interested Customers",
+      "aliases": ["interested in", "looking at", "considering", "browsed"],
+      "description": "Customers who showed interest in specific products"
+    }
+  ],
+  "time_modifiers": [
+    { "term": "30 days", "aliases": ["month", "30d", "last month"], "days": 30 },
+    { "term": "60 days", "aliases": ["60d", "two months"], "days": 60 },
+    { "term": "90 days", "aliases": ["90d", "three months", "quarter"], "days": 90 },
+    { "term": "6 months", "aliases": ["180 days", "half year"], "days": 180 },
+    { "term": "1 year", "aliases": ["365 days", "annual", "yearly"], "days": 365 }
+  ]
+}

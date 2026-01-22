@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/sj/dev/kq-studio",
+        "/Users/sj/dev/kq-platform"
+      ]
+    },
+    "hubspot": {
+      "command": "npx",
+      "args": ["-y", "@hubspot/mcp-server-hubspot"],
+      "env": {
+        "HUBSPOT_CLIENT_ID": "1c666a97-e62e-4fea-a2c6-059ea434ecc2",
+        "HUBSPOT_CLIENT_SECRET": "8b9aacae-10a6-4134-844b-9bd8aa40ae5c",
+        "HUBSPOT_REDIRECT_URI": "http://localhost:3000/oauth/callback"
+      }
+    }
+  }
+}

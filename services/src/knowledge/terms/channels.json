@@ -1,0 +1,54 @@
+{
+  "channels": [
+    {
+      "id": "email",
+      "name": "Email",
+      "aliases": ["email", "e-mail", "mail", "inbox", "newsletter"],
+      "provider": "resend",
+      "max_length": null,
+      "best_for": ["detailed content", "links", "images", "long-form"],
+      "limitations": ["may land in spam", "open rates vary"]
+    },
+    {
+      "id": "sms",
+      "name": "SMS",
+      "aliases": ["sms", "text", "text message", "texting", "mobile"],
+      "provider": "birdeye",
+      "max_length": 160,
+      "best_for": ["urgent messages", "reminders", "short promotions"],
+      "limitations": ["character limit", "opt-in required", "cost per message"]
+    },
+    {
+      "id": "slack",
+      "name": "Slack",
+      "aliases": ["slack", "team notification", "internal"],
+      "provider": "slack",
+      "max_length": null,
+      "best_for": ["internal notifications", "approvals", "alerts"],
+      "limitations": ["internal only", "not customer-facing"]
+    },
+    {
+      "id": "social",
+      "name": "Social Media",
+      "aliases": ["social", "social media", "facebook", "instagram", "twitter", "linkedin", "fb", "ig"],
+      "provider": "late.dev",
+      "max_length": {
+        "twitter": 280,
+        "facebook": 63206,
+        "instagram": 2200,
+        "linkedin": 3000
+      },
+      "best_for": ["brand awareness", "engagement", "viral content"],
+      "limitations": ["algorithm dependent", "public visibility"]
+    },
+    {
+      "id": "demo-site",
+      "name": "Demo Site",
+      "aliases": ["website", "site", "banner", "popup", "notification", "demo site", "web"],
+      "provider": "internal",
+      "max_length": null,
+      "best_for": ["on-site engagement", "loyalty banners", "personalization"],
+      "limitations": ["only reaches site visitors"]
+    }
+  ]
+}

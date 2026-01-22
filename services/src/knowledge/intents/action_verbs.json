@@ -1,0 +1,101 @@
+{
+  "action_categories": [
+    {
+      "category": "create",
+      "description": "Create new content or campaigns",
+      "verbs": ["create", "make", "build", "set up", "setup", "start", "launch", "draft", "design", "develop", "run", "request", "re-engage", "reengage"],
+      "maps_to": "create_campaign"
+    },
+    {
+      "category": "send",
+      "description": "Send communications to customers",
+      "verbs": ["send", "email", "text", "message", "blast", "deliver", "dispatch", "notify", "post", "reach out", "contact"],
+      "maps_to": "execute_campaign"
+    },
+    {
+      "category": "show",
+      "description": "Display content on website",
+      "verbs": ["show", "display", "put up", "trigger", "activate", "enable", "turn on", "push notification", "push a notification"],
+      "maps_to": "demo_site_action"
+    },
+    {
+      "category": "analyze",
+      "description": "Analyze data or reviews",
+      "verbs": ["analyze", "check", "review", "look at", "examine", "evaluate", "assess", "study"],
+      "maps_to": "analyze_data"
+    },
+    {
+      "category": "generate",
+      "description": "Generate AI content",
+      "verbs": ["generate", "write", "compose", "draft", "create content", "come up with"],
+      "maps_to": "generate_content"
+    },
+    {
+      "category": "schedule",
+      "description": "Schedule for later",
+      "verbs": ["schedule", "plan", "queue", "set for", "book", "arrange", "time"],
+      "maps_to": "schedule_campaign"
+    },
+    {
+      "category": "get",
+      "description": "Retrieve information",
+      "verbs": ["get", "fetch", "show me", "list", "find", "pull", "retrieve", "what are", "who are"],
+      "maps_to": "retrieve_data"
+    },
+    {
+      "category": "update",
+      "description": "Modify existing content",
+      "verbs": ["update", "edit", "change", "modify", "revise", "adjust", "tweak"],
+      "maps_to": "update_campaign"
+    },
+    {
+      "category": "stop",
+      "description": "Stop or pause actions",
+      "verbs": ["stop", "pause", "cancel", "halt", "disable", "turn off", "end"],
+      "maps_to": "stop_campaign"
+    },
+    {
+      "category": "approve",
+      "description": "Approval actions",
+      "verbs": ["approve", "accept", "confirm", "ok", "yes", "go ahead", "green light"],
+      "maps_to": "approve_action"
+    },
+    {
+      "category": "reject",
+      "description": "Rejection actions",
+      "verbs": ["reject", "deny", "decline", "no", "cancel", "refuse"],
+      "maps_to": "reject_action"
+    }
+  ],
+  "compound_patterns": [
+    {
+      "pattern": "send * email to *",
+      "action": "send",
+      "channel": "email",
+      "audience_slot": 2
+    },
+    {
+      "pattern": "text * customers",
+      "action": "send",
+      "channel": "sms",
+      "audience_slot": 1
+    },
+    {
+      "pattern": "show * banner on *",
+      "action": "show",
+      "channel": "demo-site",
+      "content_slot": 1
+    },
+    {
+      "pattern": "create * campaign for *",
+      "action": "create",
+      "campaign_type_slot": 1,
+      "audience_slot": 2
+    },
+    {
+      "pattern": "launch * campaign",
+      "action": "create",
+      "campaign_type_slot": 1
+    }
+  ]
+}
