@@ -24,8 +24,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       return;
     }
 
-    // Simple validation - accept any non-empty credentials
-    onLogin(name.trim());
+    // Validate credentials
+    if (name.trim().toLowerCase() === 'sumit' && password === 'trust@eye') {
+      onLogin('Sumit');
+    } else {
+      setError('Invalid username or password');
+    }
   };
 
   return (
@@ -43,17 +47,17 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         {/* Login Form */}
         <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name Field */}
+            {/* Username Field */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-2">
-                Name
+                Username
               </label>
               <input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
+                placeholder="Enter your username"
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
                 autoComplete="name"
                 autoFocus
