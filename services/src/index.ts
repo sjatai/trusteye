@@ -100,10 +100,10 @@ if (notFoundHandler) app.use(notFoundHandler);
 if (errorHandler) app.use(errorHandler);
 
 // Start server
-const PORT = process.env.PORT || 3001;
-console.log(`📦 Starting server on port ${PORT}...`);
+const PORT = parseInt(process.env.PORT || '3001', 10);
+console.log(`📦 Starting server on port ${PORT} (from env: ${process.env.PORT || 'not set'})...`);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🚀 TrustEye API Server
