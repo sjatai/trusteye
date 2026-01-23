@@ -1695,6 +1695,19 @@ export default function App() {
       campaignLabel = 'Welcome';
       audienceDescription = 'New customers';
       isCustomType = false;
+    } else if (lowerQuery.includes('holiday') || lowerQuery.includes('christmas') || lowerQuery.includes('thanksgiving') || lowerQuery.includes('new year') || lowerQuery.includes('seasonal')) {
+      campaignType = 'holiday';
+      // Extract the holiday type from query
+      if (lowerQuery.includes('december') || lowerQuery.includes('christmas')) {
+        campaignLabel = 'December Holiday';
+      } else if (lowerQuery.includes('thanksgiving')) {
+        campaignLabel = 'Thanksgiving';
+      } else if (lowerQuery.includes('new year')) {
+        campaignLabel = 'New Year';
+      } else {
+        campaignLabel = 'Holiday';
+      }
+      isCustomType = false;
     } else if (lowerQuery.includes('service') || lowerQuery.includes('maintenance') || lowerQuery.includes('reminder')) {
       campaignType = 'service';
       campaignLabel = 'Service Reminder';
@@ -1938,6 +1951,7 @@ export default function App() {
       missingSteps: ['content'], // Track what's missing
       whatChanged: whatChangedData, // Feedback loop data
       customContentInstructions: customContentInstructions, // AI-extracted content instructions
+      originalQuery: query, // Preserve full user query for AI content generation
     };
 
     setCurrentCampaign(campaignData);
@@ -2390,11 +2404,14 @@ export default function App() {
     setMessages(prev => [...prev, generatingMsg]);
 
     try {
+      // Use original query from campaign for full context
+      const campaignGoal = currentCampaign?.originalQuery || `${campaignType} campaign content`;
+
       const contentResponse = await aiApi.generateContent({
         campaignType,
         audience,
         channels,
-        goal: `${campaignType} campaign content`,
+        goal: campaignGoal,
         brandId: 'premier-nissan',
         customInstructions: customInstructions || undefined,
       });
@@ -2545,11 +2562,14 @@ export default function App() {
       return;
     }
 
+    // Use original query as context for AI - this preserves all the user's intent
+    const campaignContext = currentCampaign.originalQuery || currentCampaign.name;
+
     const contentResponse = await aiApi.generateContent({
       campaignType: currentCampaign.campaignType || 'promotional',
       audience: currentCampaign.audienceDescription || currentCampaign.audience || 'target customers',
       channels: currentCampaign.channels || ['email'],
-      goal: currentCampaign.name,
+      goal: campaignContext, // Use full original query for AI context
       brandId: 'premier-nissan',
       customInstructions: currentCampaign.customContentInstructions || undefined,
     });
