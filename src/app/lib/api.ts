@@ -1,7 +1,9 @@
 // TrustEye API Client
 // Frontend hooks for backend communication
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3009';
+// Use production API by default, localhost only if explicitly set
+const API_BASE_URL = import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:3009' : 'https://api-production-26c1.up.railway.app');
 
 // Generic API response type
 interface ApiResponse<T> {

@@ -1,7 +1,9 @@
 import { Plus, CheckCircle2, Settings, ExternalLink, Mail, Database, ShoppingCart, MessageSquare, BarChart, Zap, Info, Instagram, Linkedin, Twitter, Loader2, XCircle, Link2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3009';
+// Use production API by default, localhost only in dev mode
+const API_BASE = import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:3009' : 'https://api-production-26c1.up.railway.app');
 
 interface Integration {
   id: string;
