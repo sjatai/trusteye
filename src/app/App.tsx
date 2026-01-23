@@ -1634,12 +1634,14 @@ export default function App() {
         // Default: use AI to understand and respond
         await handleGenericCommand(query);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Command processing error:', error);
+      console.error('Error stack:', error?.stack);
+      console.error('Error message:', error?.message);
       const errorMsg: Message = {
         id: `assistant-${Date.now()}`,
         type: 'assistant',
-        content: 'I encountered an error processing your request. Please try again.',
+        content: `I encountered an error: ${error?.message || 'Unknown error'}. Please try again.`,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev.filter(m => m.id !== processingMsg.id), errorMsg]);
@@ -1907,6 +1909,9 @@ export default function App() {
       console.error('Failed to fetch what changed:', e);
     }
 
+    // Check if this is an event-based campaign (loyalty, etc.)
+    const isEventBased = campaignType === 'loyalty';
+
     const campaignData = {
       type: 'campaign_created',
       name: campaignName,
@@ -1938,9 +1943,6 @@ export default function App() {
     setCurrentCampaign(campaignData);
     setInspectorData(campaignData);
     setInspectorType('campaign');
-
-    // Check if this is an event-based campaign (loyalty, etc.)
-    const isEventBased = campaignType === 'loyalty';
 
     // Update workflow state with all parsed info
     setWorkflowState({
