@@ -21,7 +21,8 @@
       "Bash(export RAILWAY_TOKEN=f195fcf4-124b-4b2d-b3ef-8d8c070de645)",
       "Bash(railway whoami:*)",
       "Bash(railway status:*)",
-      "Bash(railway domain:*)"
+      "Bash(railway domain:*)",
+      "Bash(railway link:*)"
     ]
   }
 }

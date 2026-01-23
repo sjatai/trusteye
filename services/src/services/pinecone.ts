@@ -19,6 +19,8 @@ export interface BrandDocument {
     type: 'guidelines' | 'competitor' | 'persona' | 'strategy' | 'report' | 'general';
     section?: string;
     lastUpdated?: string;
+    // Allow additional metadata for marketing patterns
+    [key: string]: string | string[] | undefined;
   };
 }
 

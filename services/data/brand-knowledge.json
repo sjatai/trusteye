@@ -2204,6 +2204,31 @@
     }
   ],
   [
+    "audience-1769168040490",
+    {
+      "id": "audience-1769168040490",
+      "content": "Mike Mentioners: Customers who mentioned 'Mike' in their product or service reviews\nOriginal request: create audience of customers who mentioned Mike in reviews",
+      "metadata": {
+        "filename": "Mike Mentioners",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "audience",
+        "lastUpdated": "2026-01-23T11:34:00.490Z",
+        "name": "Mike Mentioners",
+        "assetType": "audience",
+        "criteria": "{\"filters\":[{\"field\":\"review_text\",\"operator\":\"contains\",\"value\":\"Mike\"}]}",
+        "tags": [
+          "reviews",
+          "mentions",
+          "mike",
+          "feedback"
+        ],
+        "source": "auto-created",
+        "createdAt": "2026-01-23T11:34:00.490Z"
+      }
+    }
+  ],
+  [
     "trusteye-system:tools:summary",
     {
       "id": "trusteye-system:tools:summary",
@@ -2850,31 +2875,6 @@
         "brandId": "trusteye-system",
         "type": "general",
         "section": "Campaign Templates"
-      }
-    }
-  ],
-  [
-    "audience-1769168040490",
-    {
-      "id": "audience-1769168040490",
-      "content": "Mike Mentioners: Customers who mentioned 'Mike' in their product or service reviews\nOriginal request: create audience of customers who mentioned Mike in reviews",
-      "metadata": {
-        "filename": "Mike Mentioners",
-        "brandId": "marketing-patterns",
-        "type": "general",
-        "section": "audience",
-        "lastUpdated": "2026-01-23T11:34:00.490Z",
-        "name": "Mike Mentioners",
-        "assetType": "audience",
-        "criteria": "{\"filters\":[{\"field\":\"review_text\",\"operator\":\"contains\",\"value\":\"Mike\"}]}",
-        "tags": [
-          "reviews",
-          "mentions",
-          "mike",
-          "feedback"
-        ],
-        "source": "auto-created",
-        "createdAt": "2026-01-23T11:34:00.490Z"
       }
     }
   ]
