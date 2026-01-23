@@ -1,4 +1,4 @@
-import { Play, Plus, MoreVertical, Zap, Clock, CheckCircle2, Users, Mail, Database, Pause, Loader2, AlertCircle, RefreshCw, AlertTriangle, MessageSquare, Wrench, Droplet } from 'lucide-react';
+import { Play, Plus, MoreVertical, Zap, Clock, CheckCircle2, Users, Mail, Database, Pause, Loader2, AlertCircle, RefreshCw, AlertTriangle, MessageSquare, Wrench, Droplet, Shield, Brain, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { rulesApi, automationsApi } from '@/app/lib/api';
 import type { Rule as APIRule } from '@/app/lib/api';
@@ -151,6 +151,12 @@ export function AutomationsPage() {
   const [error, setError] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showTrustLayer, setShowTrustLayer] = useState(true);
+  const [blockedWords, setBlockedWords] = useState([
+    'sex', 'explicit', 'porn', 'nude', 'fuck', 'shit', 'damn',
+    'best deal ever', 'guaranteed returns', 'cure'
+  ]);
+  const [newBlockedWord, setNewBlockedWord] = useState('');
 
   // Fetch automations from API
   const fetchAutomations = async () => {
@@ -280,6 +286,148 @@ export function AutomationsPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Trust Layer Configuration */}
+      <div className="mb-6 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 overflow-hidden">
+        <button
+          onClick={() => setShowTrustLayer(!showTrustLayer)}
+          className="w-full px-5 py-4 flex items-center justify-between hover:bg-indigo-100/50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-indigo-600" />
+            </div>
+            <div className="text-left">
+              <h3 className="text-[15px] font-semibold text-slate-900">Trust Layer - 3-Gate Approval System</h3>
+              <p className="text-[12px] text-slate-600">Configure content guardrails and AI assessment criteria</p>
+            </div>
+          </div>
+          {showTrustLayer ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+        </button>
+
+        {showTrustLayer && (
+          <div className="px-5 pb-5 space-y-4">
+            {/* Gate 1: Rules Engine */}
+            <div className="p-4 rounded-xl bg-white border border-indigo-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-indigo-600" />
+                </div>
+                <div>
+                  <h4 className="text-[13px] font-bold text-slate-900">Gate 1: Rules Validation</h4>
+                  <p className="text-[11px] text-slate-500">Automated pattern matching - instant pass/fail</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-700 uppercase tracking-wide">Blocked Words & Phrases</label>
+                  <p className="text-[10px] text-slate-500 mb-2">Content containing these will be automatically rejected</p>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {blockedWords.map((word, idx) => (
+                      <span key={idx} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-50 border border-red-200 text-[10px] text-red-700">
+                        {word}
+                        <button
+                          onClick={() => setBlockedWords(prev => prev.filter((_, i) => i !== idx))}
+                          className="hover:text-red-900"
+                        >
+                          <XCircle className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newBlockedWord}
+                      onChange={(e) => setNewBlockedWord(e.target.value)}
+                      placeholder="Add blocked word..."
+                      className="flex-1 px-3 py-1.5 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && newBlockedWord.trim()) {
+                          setBlockedWords(prev => [...prev, newBlockedWord.trim().toLowerCase()]);
+                          setNewBlockedWord('');
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={() => {
+                        if (newBlockedWord.trim()) {
+                          setBlockedWords(prev => [...prev, newBlockedWord.trim().toLowerCase()]);
+                          setNewBlockedWord('');
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-indigo-500 text-white text-[11px] font-semibold rounded-lg hover:bg-indigo-600"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100">
+                  <p className="text-[11px] font-semibold text-slate-700 mb-1">Also Checks:</p>
+                  <div className="grid grid-cols-2 gap-1 text-[10px] text-slate-600">
+                    <span>• Profanity & explicit content</span>
+                    <span>• Hate speech & threats</span>
+                    <span>• Misleading claims</span>
+                    <span>• Investment/medical advice</span>
+                    <span>• ALL CAPS detection</span>
+                    <span>• Excessive punctuation (!!!)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Gate 2: AI Assessment */}
+            <div className="p-4 rounded-xl bg-white border border-purple-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                  <Brain className="w-4 h-4 text-purple-600" />
+                </div>
+                <div>
+                  <h4 className="text-[13px] font-bold text-slate-900">Gate 2: AI Assessment</h4>
+                  <p className="text-[11px] text-slate-500">Brand alignment scoring - requires 70+ to pass</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold text-slate-700">AI Evaluates These Dimensions:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { name: 'Tone Alignment', weight: '20%', desc: 'Does it match brand voice?' },
+                    { name: 'Message Clarity', weight: '20%', desc: 'Is the main point clear?' },
+                    { name: 'Voice Consistency', weight: '15%', desc: 'Consistent throughout?' },
+                    { name: 'Audience Relevance', weight: '15%', desc: 'Right for target audience?' },
+                    { name: 'Value Proposition', weight: '15%', desc: 'Focus on benefits, not discounts?' },
+                    { name: 'Community Feel', weight: '10%', desc: 'Local and personal?' },
+                    { name: 'CTA Quality', weight: '5%', desc: 'Inviting, not pushy?' },
+                  ].map((dim, idx) => (
+                    <div key={idx} className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-purple-50">
+                      <div>
+                        <span className="text-[11px] font-medium text-slate-700">{dim.name}</span>
+                        <p className="text-[9px] text-slate-500">{dim.desc}</p>
+                      </div>
+                      <span className="text-[10px] font-bold text-purple-600">{dim.weight}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-slate-500 mt-2">
+                  <strong>Pass Threshold:</strong> Brand Score ≥ 70 AND no Gate 1 blockers
+                </p>
+              </div>
+            </div>
+
+            {/* Gate 3 Info */}
+            <div className="p-3 rounded-lg bg-sky-50 border border-sky-200 flex items-center gap-3">
+              <Users className="w-5 h-5 text-sky-600 flex-shrink-0" />
+              <div>
+                <span className="text-[12px] font-semibold text-sky-900">Gate 3: Human Approval</span>
+                <p className="text-[10px] text-sky-700">Final sign-off via Slack notification - AI cannot approve itself</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Feedback Loop Warning Banner */}
