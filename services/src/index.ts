@@ -43,11 +43,15 @@ try {
   console.error('❌ Error loading modules:', err);
 }
 
+console.log('📦 Creating Express app...');
 const app = express();
+console.log('📦 Express app created');
 
 // Middleware
+console.log('📦 Setting up middleware...');
 app.use(cors());
 app.use(express.json());
+console.log('📦 Middleware configured');
 
 // Enhanced request logging for testing
 app.use((req, res, next) => {
@@ -97,6 +101,7 @@ if (errorHandler) app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 3001;
+console.log(`📦 Starting server on port ${PORT}...`);
 
 app.listen(PORT, () => {
   console.log(`
