@@ -24,8 +24,8 @@ const connectedAccounts = new Map<string, {
 
 // OAuth Configuration
 const getOAuthConfig = (provider: string) => {
-  const baseUrl = process.env.API_BASE_URL || 'http://localhost:3009';
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const baseUrl = process.env.API_BASE_URL || 'https://api-production-26c1.up.railway.app';
+  const frontendUrl = process.env.FRONTEND_URL || 'https://trusteye.ai';
 
   const configs: Record<string, any> = {
     instagram: {
@@ -160,7 +160,7 @@ router.get('/:provider/connect', (req: Request, res: Response) => {
 router.get('/:provider/callback', async (req: Request, res: Response) => {
   const { provider } = req.params;
   const { code, state, error, error_description } = req.query;
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const frontendUrl = process.env.FRONTEND_URL || 'https://trusteye.ai';
 
   if (error) {
     return res.redirect(`${frontendUrl}/integrations?error=${encodeURIComponent(error_description as string || error as string)}`);
@@ -410,13 +410,15 @@ async function postToInstagram(accessToken: string, caption: string, mediaUrl: s
 
 // Get setup instructions for each provider
 function getSetupInstructions(provider: string) {
+  const baseUrl = process.env.API_BASE_URL || 'https://api-production-26c1.up.railway.app';
+
   const instructions: Record<string, any> = {
     instagram: {
       steps: [
         '1. Go to https://developers.facebook.com/',
         '2. Create a new app or select existing app',
         '3. Add "Instagram Graph API" product',
-        '4. Configure OAuth redirect: http://localhost:3009/api/oauth/instagram/callback',
+        `4. Configure OAuth redirect: ${baseUrl}/api/oauth/instagram/callback`,
         '5. Copy App ID and App Secret',
       ],
       envVars: [
@@ -430,7 +432,7 @@ function getSetupInstructions(provider: string) {
         '1. Go to https://www.linkedin.com/developers/',
         '2. Create a new app',
         '3. Request "Sign In with LinkedIn using OpenID Connect" and "Share on LinkedIn" products',
-        '4. Add OAuth 2.0 redirect URL: http://localhost:3009/api/oauth/linkedin/callback',
+        `4. Add OAuth 2.0 redirect URL: ${baseUrl}/api/oauth/linkedin/callback`,
         '5. Copy Client ID and Client Secret',
       ],
       envVars: [
@@ -444,7 +446,7 @@ function getSetupInstructions(provider: string) {
         '1. Go to https://developer.twitter.com/en/portal/dashboard',
         '2. Create a new project and app',
         '3. Enable OAuth 2.0 in User authentication settings',
-        '4. Set callback URL: http://localhost:3009/api/oauth/twitter/callback',
+        `4. Set callback URL: ${baseUrl}/api/oauth/twitter/callback`,
         '5. Copy Client ID and Client Secret',
       ],
       envVars: [

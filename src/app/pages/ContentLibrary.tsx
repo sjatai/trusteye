@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Filter, Plus, ChevronDown, X, FileText, Layout, Palette, Mail, Smartphone, Share2, Loader2 } from 'lucide-react';
+import { Search, Filter, Plus, ChevronDown, ChevronRight, X, FileText, Layout, Palette, Mail, Smartphone, Share2, Loader2 } from 'lucide-react';
 import { ContentCard } from '../components/ContentCard';
 import { ContentRow } from '../components/ContentRow';
 import { ChannelBadge } from '../components/ChannelBadge';
@@ -107,6 +107,10 @@ export function ContentLibraryPage({
       setLocalBrandTone(newTone);
     }
   };
+
+  // Collapsible section states - Email and SMS collapsed by default
+  const [emailExpanded, setEmailExpanded] = useState(false);
+  const [smsExpanded, setSmsExpanded] = useState(false);
 
   // Notify parent when content selection changes
   useEffect(() => {
@@ -343,71 +347,7 @@ export function ContentLibraryPage({
         )}
       </div>
 
-      {/* Email Templates Section */}
-      {emailTemplates.length > 0 && (
-        <div ref={emailSectionRef} className="mb-8 scroll-mt-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Mail className="w-4 h-4 text-purple-500" />
-            <h2 className="text-[15px] font-semibold text-slate-900">
-              Email Templates
-              <span className="ml-2 text-[12px] font-normal text-slate-500">({emailTemplates.length})</span>
-            </h2>
-          </div>
-
-          <div className="space-y-2">
-            {emailTemplates.slice(0, 6).map((item) => (
-              <ContentRow
-                key={item.id}
-                content={item}
-                isSelected={selectedContent?.id === item.id}
-                onClick={() => setSelectedContent(item)}
-                onPreview={() => setSelectedContent(item)}
-                onCreateCampaign={() => handleCreateCampaign(item)}
-              />
-            ))}
-          </div>
-
-          {emailTemplates.length > 6 && (
-            <button className="mt-3 w-full py-2 rounded-lg border border-slate-200 text-[12px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-              View all {emailTemplates.length} email templates
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* SMS Templates Section */}
-      {smsTemplates.length > 0 && (
-        <div ref={smsSectionRef} className="mb-8 scroll-mt-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Smartphone className="w-4 h-4 text-teal-500" />
-            <h2 className="text-[15px] font-semibold text-slate-900">
-              SMS Templates
-              <span className="ml-2 text-[12px] font-normal text-slate-500">({smsTemplates.length})</span>
-            </h2>
-          </div>
-
-          <div className="space-y-2">
-            {smsTemplates.slice(0, 6).map((item) => (
-              <ContentRow
-                key={item.id}
-                content={item}
-                isSelected={selectedContent?.id === item.id}
-                onClick={() => setSelectedContent(item)}
-                onPreview={() => setSelectedContent(item)}
-                onCreateCampaign={() => handleCreateCampaign(item)}
-              />
-            ))}
-          </div>
-
-          {smsTemplates.length > 6 && (
-            <button className="mt-3 w-full py-2 rounded-lg border border-slate-200 text-[12px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-              View all {smsTemplates.length} SMS templates
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Social Templates (Instagram, LinkedIn, Twitter) */}
+      {/* Social Templates (Instagram, LinkedIn, Twitter) - SHOWN FIRST */}
       {socialTemplates.length > 0 && (
         <div ref={socialSectionRef} className="mb-8 scroll-mt-8">
           <div className="flex items-center gap-2 mb-3">
@@ -459,6 +399,94 @@ export function ContentLibraryPage({
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Email Templates Section - COLLAPSIBLE */}
+      {emailTemplates.length > 0 && (
+        <div ref={emailSectionRef} className="mb-8 scroll-mt-8">
+          <button
+            onClick={() => setEmailExpanded(!emailExpanded)}
+            className="flex items-center gap-2 mb-3 w-full text-left hover:bg-slate-50 rounded-lg p-2 -ml-2 transition-colors"
+          >
+            {emailExpanded ? (
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            )}
+            <Mail className="w-4 h-4 text-purple-500" />
+            <h2 className="text-[15px] font-semibold text-slate-900">
+              Email Templates
+              <span className="ml-2 text-[12px] font-normal text-slate-500">({emailTemplates.length})</span>
+            </h2>
+          </button>
+
+          {emailExpanded && (
+            <>
+              <div className="space-y-2 ml-6">
+                {emailTemplates.slice(0, 6).map((item) => (
+                  <ContentRow
+                    key={item.id}
+                    content={item}
+                    isSelected={selectedContent?.id === item.id}
+                    onClick={() => setSelectedContent(item)}
+                    onPreview={() => setSelectedContent(item)}
+                    onCreateCampaign={() => handleCreateCampaign(item)}
+                  />
+                ))}
+              </div>
+
+              {emailTemplates.length > 6 && (
+                <button className="mt-3 ml-6 w-[calc(100%-1.5rem)] py-2 rounded-lg border border-slate-200 text-[12px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                  View all {emailTemplates.length} email templates
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* SMS Templates Section - COLLAPSIBLE */}
+      {smsTemplates.length > 0 && (
+        <div ref={smsSectionRef} className="mb-8 scroll-mt-8">
+          <button
+            onClick={() => setSmsExpanded(!smsExpanded)}
+            className="flex items-center gap-2 mb-3 w-full text-left hover:bg-slate-50 rounded-lg p-2 -ml-2 transition-colors"
+          >
+            {smsExpanded ? (
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            )}
+            <Smartphone className="w-4 h-4 text-teal-500" />
+            <h2 className="text-[15px] font-semibold text-slate-900">
+              SMS Templates
+              <span className="ml-2 text-[12px] font-normal text-slate-500">({smsTemplates.length})</span>
+            </h2>
+          </button>
+
+          {smsExpanded && (
+            <>
+              <div className="space-y-2 ml-6">
+                {smsTemplates.slice(0, 6).map((item) => (
+                  <ContentRow
+                    key={item.id}
+                    content={item}
+                    isSelected={selectedContent?.id === item.id}
+                    onClick={() => setSelectedContent(item)}
+                    onPreview={() => setSelectedContent(item)}
+                    onCreateCampaign={() => handleCreateCampaign(item)}
+                  />
+                ))}
+              </div>
+
+              {smsTemplates.length > 6 && (
+                <button className="mt-3 ml-6 w-[calc(100%-1.5rem)] py-2 rounded-lg border border-slate-200 text-[12px] font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                  View all {smsTemplates.length} SMS templates
+                </button>
+              )}
+            </>
+          )}
         </div>
       )}
 

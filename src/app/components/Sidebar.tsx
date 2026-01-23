@@ -11,7 +11,6 @@ interface SidebarProps {
 export const Sidebar = memo(function Sidebar({ activeTool, onToolChange }: SidebarProps) {
   const tools = [
     { id: 'studio', icon: StarsIcon, label: 'AI Studio' },
-    { id: 'campaigns', icon: LayoutList, label: 'Campaigns' },
     { id: 'audiences', icon: Users, label: 'Audiences' },
     { id: 'content', icon: FolderOpen, label: 'Content Library' },
     { id: 'automations', icon: Workflow, label: 'Automations' },
