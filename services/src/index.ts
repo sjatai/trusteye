@@ -1,8 +1,9 @@
-// Polyfill fetch for Node.js compatibility
-const fetch = require('node-fetch');
-if (!globalThis.fetch) {
-  (globalThis as any).fetch = fetch;
-}
+// Force node-fetch to override native fetch (Railway network issues)
+const nodeFetch = require('node-fetch');
+(globalThis as any).fetch = nodeFetch;
+(globalThis as any).Headers = nodeFetch.Headers;
+(globalThis as any).Request = nodeFetch.Request;
+(globalThis as any).Response = nodeFetch.Response;
 
 import express from 'express';
 import cors from 'cors';
