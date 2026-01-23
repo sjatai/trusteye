@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Campaign orchestration service for KQ Studio",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc && npm run copy-data",
