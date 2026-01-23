@@ -1104,10 +1104,12 @@ export default function App() {
     try {
       const rulesResult = await rulesApi.list();
       const rules = rulesResult.data || [];
+      const lowerQuery = query.toLowerCase();
 
-      let content = response + '\n\n';
+      let content = '';
 
       if (intent === 'LIST') {
+        content = response + '\n\n';
         if (rules.length === 0) {
           content += `No automation rules yet.\n\n**Create one:**\n• "When customer leaves 5-star review, send thank you email"\n• "When customer inactive 90 days, send winback offer"`;
         } else {
@@ -1116,8 +1118,87 @@ export default function App() {
             content += `${statusEmoji} **${r.name}**\n   Trigger: ${r.trigger_type} | Active: ${r.is_active ? 'Yes' : 'No'}\n\n`;
           });
         }
-      } else if (intent === 'CREATE') {
-        content = `**Creating new automation rule**\n\nDescribe the rule in natural language:\n\n• "When [trigger], then [action]"\n\n**Triggers:** review received, purchase made, signup, inactivity\n**Actions:** send email, send SMS, notify Slack, update CRM`;
+      } else if (intent === 'CREATE' || lowerQuery.includes('when ')) {
+        // Parse the automation rule from natural language
+        let triggerType = 'review_received';
+        let triggerConditions: any = {};
+        let actionType = 'send_email';
+        let actionConfig: any = {};
+        let ruleName = '';
+
+        // Parse trigger
+        if (lowerQuery.includes('5 star') || lowerQuery.includes('5-star') || lowerQuery.includes('five star')) {
+          triggerType = 'review_received';
+          triggerConditions = { rating: 5 };
+          ruleName = '5-Star Review Thank You';
+        } else if (lowerQuery.includes('4 star') || lowerQuery.includes('4-star')) {
+          triggerType = 'review_received';
+          triggerConditions = { rating: 4 };
+          ruleName = '4-Star Review Follow-up';
+        } else if (lowerQuery.includes('review')) {
+          triggerType = 'review_received';
+          triggerConditions = { rating: { min: 1, max: 5 } };
+          ruleName = 'Review Response';
+        } else if (lowerQuery.includes('inactive') || lowerQuery.includes('dormant')) {
+          triggerType = 'customer_inactive';
+          const daysMatch = lowerQuery.match(/(\d+)\s*days?/);
+          triggerConditions = { days: daysMatch ? parseInt(daysMatch[1]) : 90 };
+          ruleName = `Inactive ${triggerConditions.days} Days Winback`;
+        } else if (lowerQuery.includes('purchase') || lowerQuery.includes('buy') || lowerQuery.includes('bought')) {
+          triggerType = 'purchase_made';
+          triggerConditions = {};
+          ruleName = 'Post-Purchase Follow-up';
+        } else if (lowerQuery.includes('signup') || lowerQuery.includes('sign up') || lowerQuery.includes('new customer')) {
+          triggerType = 'customer_signup';
+          triggerConditions = {};
+          ruleName = 'Welcome New Customer';
+        }
+
+        // Parse action
+        if (lowerQuery.includes('email') || lowerQuery.includes('mail')) {
+          actionType = 'send_email';
+          if (lowerQuery.includes('thank')) {
+            actionConfig = { template: 'thank_you', subject: 'Thank you for your review!' };
+          } else if (lowerQuery.includes('welcome')) {
+            actionConfig = { template: 'welcome', subject: 'Welcome to Premier Nissan!' };
+          } else if (lowerQuery.includes('winback') || lowerQuery.includes('miss')) {
+            actionConfig = { template: 'winback', subject: 'We miss you!' };
+          } else {
+            actionConfig = { template: 'general' };
+          }
+        } else if (lowerQuery.includes('sms') || lowerQuery.includes('text')) {
+          actionType = 'send_sms';
+          actionConfig = { template: 'general' };
+        } else if (lowerQuery.includes('slack') || lowerQuery.includes('notify')) {
+          actionType = 'notify_slack';
+          actionConfig = { channel: '#notifications' };
+        }
+
+        // Actually create the rule
+        try {
+          const createResult = await rulesApi.create({
+            name: ruleName || 'New Automation Rule',
+            trigger_type: triggerType,
+            trigger_conditions: triggerConditions,
+            action_type: actionType,
+            action_config: actionConfig,
+            is_active: true,
+          });
+
+          if (createResult.success) {
+            content = `✅ **Automation Created: "${ruleName}"**\n\n`;
+            content += `**Trigger:** ${triggerType.replace(/_/g, ' ')}\n`;
+            content += `**Conditions:** ${JSON.stringify(triggerConditions)}\n`;
+            content += `**Action:** ${actionType.replace(/_/g, ' ')}\n\n`;
+            content += `🟢 **Status:** Active and running\n\n`;
+            content += `This automation will now run automatically. No approval needed for automations.`;
+          } else {
+            content = `❌ Failed to create automation: ${createResult.error || 'Unknown error'}`;
+          }
+        } catch (e) {
+          console.error('Failed to create automation:', e);
+          content = `❌ Failed to create automation. Please try again.`;
+        }
       } else {
         content = response;
       }
