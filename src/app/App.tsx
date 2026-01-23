@@ -1600,7 +1600,7 @@ export default function App() {
         addMessage(generatingMsg);
 
         try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL || '${import.meta.env.VITE_API_URL || 'http://localhost:3009'}'}/api/ai/image/generate`, {
+          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3009'}/api/ai/image/generate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1737,7 +1737,7 @@ export default function App() {
       // In-app approval (workaround for Slack interactive buttons)
       else if ((lowerQuery === 'approve' || lowerQuery === 'approved' || lowerQuery === 'i approve') && currentCampaign?.id) {
         try {
-          const approvalResponse = await fetch('${import.meta.env.VITE_API_URL || 'http://localhost:3009'}/api/campaigns/slack/approval', {
+          const approvalResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3009'}/api/campaigns/slack/approval`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -2105,7 +2105,7 @@ export default function App() {
 
       console.log('[MarketingEngine] Calling engine with:', { query, activeDraft });
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || '${import.meta.env.VITE_API_URL || 'http://localhost:3009'}'}/api/ai/engine`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3009'}/api/ai/engine`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
