@@ -1,22 +1,47 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-import { supabase, testConnection } from './services/db';
-import campaignRoutes from './routes/campaigns';
-import audienceRoutes from './routes/audiences';
-import ruleRoutes from './routes/rules';
-import analyticsRoutes from './routes/analytics';
-import aiRoutes from './routes/ai';
-import demoSiteRoutes from './routes/demo-site';
-import automationRoutes from './routes/automations';
-import contentRoutes from './routes/content';
-import oauthRoutes from './routes/oauth';
-import { indexTrustEyeKnowledge } from './services/trusteyeKnowledge';
-import { loadPersistedDocuments } from './services/pinecone';
 
-// Load environment variables
+// Load environment variables FIRST
 dotenv.config();
+
+// Catch all uncaught errors
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Rejection:', err);
+});
+
+// Lazy load routes to catch import errors
+let campaignRoutes: any, audienceRoutes: any, ruleRoutes: any, analyticsRoutes: any;
+let aiRoutes: any, demoSiteRoutes: any, automationRoutes: any, contentRoutes: any, oauthRoutes: any;
+let errorHandler: any, notFoundHandler: any;
+let testConnection: any, indexTrustEyeKnowledge: any, loadPersistedDocuments: any;
+
+try {
+  const middleware = require('./middleware/errorHandler');
+  errorHandler = middleware.errorHandler;
+  notFoundHandler = middleware.notFoundHandler;
+
+  campaignRoutes = require('./routes/campaigns').default;
+  audienceRoutes = require('./routes/audiences').default;
+  ruleRoutes = require('./routes/rules').default;
+  analyticsRoutes = require('./routes/analytics').default;
+  aiRoutes = require('./routes/ai').default;
+  demoSiteRoutes = require('./routes/demo-site').default;
+  automationRoutes = require('./routes/automations').default;
+  contentRoutes = require('./routes/content').default;
+  oauthRoutes = require('./routes/oauth').default;
+
+  testConnection = require('./services/db').testConnection;
+  indexTrustEyeKnowledge = require('./services/trusteyeKnowledge').indexTrustEyeKnowledge;
+  loadPersistedDocuments = require('./services/pinecone').loadPersistedDocuments;
+
+  console.log('✅ All modules loaded successfully');
+} catch (err) {
+  console.error('❌ Error loading modules:', err);
+}
 
 const app = express();
 
@@ -55,20 +80,20 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
-app.use('/api/campaigns', campaignRoutes);
-app.use('/api/audiences', audienceRoutes);
-app.use('/api/rules', ruleRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/ai', aiRoutes); // Intelligence Agent - AI features
-app.use('/api/demo-site', demoSiteRoutes); // Demo site integration
-app.use('/api/automations', automationRoutes); // Workflow automations
-app.use('/api/content', contentRoutes); // Content library & brand tone
-app.use('/api/oauth', oauthRoutes); // OAuth for social media integrations
+// API Routes (only if loaded successfully)
+if (campaignRoutes) app.use('/api/campaigns', campaignRoutes);
+if (audienceRoutes) app.use('/api/audiences', audienceRoutes);
+if (ruleRoutes) app.use('/api/rules', ruleRoutes);
+if (analyticsRoutes) app.use('/api/analytics', analyticsRoutes);
+if (aiRoutes) app.use('/api/ai', aiRoutes);
+if (demoSiteRoutes) app.use('/api/demo-site', demoSiteRoutes);
+if (automationRoutes) app.use('/api/automations', automationRoutes);
+if (contentRoutes) app.use('/api/content', contentRoutes);
+if (oauthRoutes) app.use('/api/oauth', oauthRoutes);
 
 // Error handling
-app.use(notFoundHandler);
-app.use(errorHandler);
+if (notFoundHandler) app.use(notFoundHandler);
+if (errorHandler) app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 3001;
@@ -87,19 +112,23 @@ Environment: ${process.env.NODE_ENV || 'development'}
 
   // Initialize services in background (don't block server startup)
   (async () => {
-    try {
-      await testConnection();
-      console.log('✅ Database connected');
-    } catch (err) {
-      console.error('⚠️ Database connection failed:', err);
+    if (testConnection) {
+      try {
+        await testConnection();
+        console.log('✅ Database connected');
+      } catch (err) {
+        console.error('⚠️ Database connection failed:', err);
+      }
     }
 
-    try {
-      loadPersistedDocuments();
-      await indexTrustEyeKnowledge();
-      console.log('✅ Knowledge base loaded');
-    } catch (err) {
-      console.error('⚠️ Knowledge base loading failed:', err);
+    if (loadPersistedDocuments && indexTrustEyeKnowledge) {
+      try {
+        loadPersistedDocuments();
+        await indexTrustEyeKnowledge();
+        console.log('✅ Knowledge base loaded');
+      } catch (err) {
+        console.error('⚠️ Knowledge base loading failed:', err);
+      }
     }
   })();
 });
