@@ -1,5 +1,5 @@
 // Polyfill fetch for Node.js compatibility
-import fetch from 'node-fetch';
+const fetch = require('node-fetch');
 if (!globalThis.fetch) {
   (globalThis as any).fetch = fetch;
 }
