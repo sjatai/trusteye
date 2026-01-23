@@ -73,24 +73,35 @@ app.use(errorHandler);
 // Start server
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
   console.log(`
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🚀 TrustEye API Server
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ Server running on: http://localhost:${PORT}
-📋 Health check: http://localhost:${PORT}/health
+✅ Server running on port ${PORT}
+📋 Health check: /health
 
 Environment: ${process.env.NODE_ENV || 'development'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   `);
 
-  // Test database connection
-  await testConnection();
+  // Initialize services in background (don't block server startup)
+  (async () => {
+    try {
+      await testConnection();
+      console.log('✅ Database connected');
+    } catch (err) {
+      console.error('⚠️ Database connection failed:', err);
+    }
 
-  // Load existing knowledge and index TrustEye capabilities
-  loadPersistedDocuments();
-  await indexTrustEyeKnowledge();
+    try {
+      loadPersistedDocuments();
+      await indexTrustEyeKnowledge();
+      console.log('✅ Knowledge base loaded');
+    } catch (err) {
+      console.error('⚠️ Knowledge base loading failed:', err);
+    }
+  })();
 });
 
 export default app;

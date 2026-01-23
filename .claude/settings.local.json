@@ -22,7 +22,10 @@
       "Bash(railway whoami:*)",
       "Bash(railway status:*)",
       "Bash(railway domain:*)",
-      "Bash(railway link:*)"
+      "Bash(railway link:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix server startup - don''t block on DB/knowledge init\n\nServer now starts immediately and initializes DB and knowledge base\nin background. Prevents healthcheck failures during startup.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)"
     ]
   }
 }
