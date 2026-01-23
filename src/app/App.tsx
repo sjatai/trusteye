@@ -23,8 +23,8 @@ const PageLoader = () => (
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1E5ECC]"></div>
   </div>
 );
-import { aiApi, campaignsApi, audiencesApi, rulesApi, analyticsApi } from './lib/api';
-import type { AISuggestion, GeneratedContent } from './lib/api';
+import { aiApi, campaignsApi, audiencesApi, rulesApi, analyticsApi, contentApi, imageApi } from './lib/api';
+import type { AISuggestion, GeneratedContent, ContentLibraryItem } from './lib/api';
 import { ContentPreviewPanel } from './components/ContentPreviewPanel';
 import type { ContentItem, ContentChannel, CampaignType, BrandTone } from './types/content';
 import { contentLibrary as initialContentLibrary } from './data/contentLibrary';
@@ -39,10 +39,10 @@ interface Message {
 }
 
 // Available channels configured in integrations
-const AVAILABLE_CHANNELS = ['email', 'slack', 'sms'];
+const AVAILABLE_CHANNELS = ['email', 'slack', 'sms', 'website'];
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true); // Skip login for demo
   const [userName, setUserName] = useState('');
   const [activePage, setActivePage] = useState('studio');
   // Per-page message history - each page has its own conversation
@@ -92,6 +92,43 @@ export default function App() {
   // Handle workflow state changes from WorkflowBlocks
   const handleWorkflowStateChange = (updates: Partial<WorkflowState>) => {
     setWorkflowState(prev => ({ ...prev, ...updates }));
+
+    // Also update currentCampaign and inspectorData when audience is selected
+    if (updates.audience || updates.audienceDescription) {
+      const audienceUpdate = {
+        audienceDescription: updates.audienceDescription || updates.audience,
+        audienceName: updates.audience,
+        audienceSize: updates.audienceSize || 500, // Default estimate
+      };
+
+      if (currentCampaign) {
+        const updatedCampaign = { ...currentCampaign, ...audienceUpdate };
+        setCurrentCampaign(updatedCampaign);
+        setInspectorData(updatedCampaign);
+      }
+
+      // Add confirmation message
+      const audienceMsg: Message = {
+        id: `assistant-${Date.now()}`,
+        type: 'assistant',
+        content: `**Audience Selected:** ${updates.audienceDescription || updates.audience}\n\n${currentCampaign?.content ? 'Ready to submit for review! Click "Submit for 3-Gate Approval" or say "review".' : 'Next: Generate content or say "generate content".'}`,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, audienceMsg]);
+    }
+
+    // Also update when channel is selected
+    if (updates.channel || updates.channels) {
+      if (currentCampaign) {
+        const updatedCampaign = {
+          ...currentCampaign,
+          channel: updates.channel,
+          channels: updates.channels || [updates.channel?.toLowerCase()],
+        };
+        setCurrentCampaign(updatedCampaign);
+        setInspectorData(updatedCampaign);
+      }
+    }
   };
 
   /**
@@ -228,9 +265,283 @@ export default function App() {
     }
   };
 
+  /**
+   * CONTEXT-AWARE ROUTING SYSTEM
+   * ============================
+   * Determines where commands should be routed and what context to preserve.
+   */
+  type PrimaryIntent = 'campaign' | 'content' | 'audience' | 'automation' | 'analytics' | 'integration' | 'chat';
+  type TargetPage = 'studio' | 'campaigns' | 'audiences' | 'content' | 'automations' | 'analytics' | 'integrations';
+
+  interface RoutingDecision {
+    primaryIntent: PrimaryIntent;
+    targetPage: TargetPage;
+    shouldNavigate: boolean;
+    preservedContext: {
+      audience?: string;
+      content?: string;
+      campaignType?: string;
+      channels?: string[];
+    };
+    nextActionSuggestion: string;
+  }
+
+  // Detect primary intent from command
+  const detectPrimaryIntent = (query: string): PrimaryIntent => {
+    const lowerQuery = query.toLowerCase();
+    const hasCreate = lowerQuery.includes('create') || lowerQuery.includes('make') || lowerQuery.includes('generate') || lowerQuery.includes('build');
+
+    // Explicit keywords take priority
+    if (lowerQuery.includes('campaign')) return 'campaign';
+    if (lowerQuery.includes('audience') || lowerQuery.includes('segment')) return 'audience';
+    if (lowerQuery.includes('automation') || lowerQuery.includes('rule') || lowerQuery.includes('when ')) return 'automation';
+    if (lowerQuery.includes('analytics') || lowerQuery.includes('performance') || lowerQuery.includes('metrics')) return 'analytics';
+    if (lowerQuery.includes('integration') || lowerQuery.includes('connect')) return 'integration';
+
+    // Content signals (without campaign)
+    if (hasCreate && (lowerQuery.includes('template') || lowerQuery.includes('content') ||
+        lowerQuery.includes('post') || lowerQuery.includes('instagram') ||
+        lowerQuery.includes('linkedin') || lowerQuery.includes('twitter') ||
+        lowerQuery.includes('social') || lowerQuery.includes('email') || lowerQuery.includes('sms'))) {
+      return 'content';
+    }
+
+    // If just "create" without clear context, return 'ambiguous' to trigger follow-up
+    if (hasCreate && !lowerQuery.includes('campaign') && !lowerQuery.includes('audience') &&
+        !lowerQuery.includes('content') && !lowerQuery.includes('template')) {
+      return 'chat'; // Will handle with follow-up question
+    }
+
+    return 'chat';
+  };
+
+  // Check if command needs clarification
+  const needsClarification = (query: string): boolean => {
+    const lowerQuery = query.toLowerCase();
+    const hasCreate = lowerQuery.includes('create') || lowerQuery.includes('make') || lowerQuery.includes('build');
+
+    // "create" without clear target needs clarification
+    if (hasCreate) {
+      const hasTarget = lowerQuery.includes('campaign') || lowerQuery.includes('audience') ||
+                        lowerQuery.includes('content') || lowerQuery.includes('template') ||
+                        lowerQuery.includes('post') || lowerQuery.includes('email') ||
+                        lowerQuery.includes('sms') || lowerQuery.includes('automation') ||
+                        lowerQuery.includes('rule') || lowerQuery.includes('instagram') ||
+                        lowerQuery.includes('social');
+      return !hasTarget;
+    }
+    return false;
+  };
+
+  // Map intent to target page
+  const getTargetPage = (intent: PrimaryIntent): TargetPage => {
+    switch (intent) {
+      case 'campaign': return 'studio';
+      case 'content': return 'content';
+      case 'audience': return 'audiences';
+      case 'automation': return 'automations';
+      case 'analytics': return 'analytics';
+      case 'integration': return 'integrations';
+      default: return activePage as TargetPage; // Stay on current page for chat
+    }
+  };
+
+  // Determine routing decision
+  const getRoutingDecision = (query: string): RoutingDecision => {
+    const lowerQuery = query.toLowerCase();
+    const primaryIntent = detectPrimaryIntent(query);
+    const targetPage = getTargetPage(primaryIntent);
+
+    // Extract context from query
+    const preservedContext: RoutingDecision['preservedContext'] = {};
+
+    // Extract audience mention
+    const audiencePatterns = [
+      /(?:for|targeting|to)\s+(.+?)\s+(?:customers?|users?|audience)/i,
+      /audience[:\s]+["']?([^"']+)["']?/i,
+    ];
+    for (const pattern of audiencePatterns) {
+      const match = query.match(pattern);
+      if (match) {
+        preservedContext.audience = match[1].trim();
+        break;
+      }
+    }
+
+    // Extract content/template mention
+    if (lowerQuery.includes('with') && (lowerQuery.includes('content') || lowerQuery.includes('template'))) {
+      const contentMatch = query.match(/with\s+(?:the\s+)?["']?(.+?)["']?\s+(?:content|template)/i);
+      if (contentMatch) {
+        preservedContext.content = contentMatch[1].trim();
+      }
+    }
+
+    // Extract campaign type
+    const campaignTypes = ['referral', 'recovery', 'conquest', 'winback', 'win-back', 'loyalty', 'service', 'welcome', 'birthday', 'holiday'];
+    for (const type of campaignTypes) {
+      if (lowerQuery.includes(type)) {
+        preservedContext.campaignType = type.replace('-', '');
+        break;
+      }
+    }
+
+    // Determine if navigation is needed
+    // Don't navigate if:
+    // 1. Already on the target page
+    // 2. Primary intent is campaign and we have a campaign in progress (stay to continue)
+    // 3. Primary intent is content but we have a campaign in progress (generate content for campaign)
+    // 4. It's a general chat/question
+    const shouldNavigate =
+      primaryIntent !== 'chat' &&
+      activePage !== targetPage &&
+      !(primaryIntent === 'campaign' && currentCampaign && activePage === 'studio') &&
+      !(primaryIntent === 'content' && currentCampaign && activePage === 'studio');
+
+    // Generate next action suggestion based on intent
+    let nextActionSuggestion = '';
+    switch (primaryIntent) {
+      case 'campaign':
+        nextActionSuggestion = 'After creating, say "generate content" to create the message.';
+        break;
+      case 'content':
+        nextActionSuggestion = 'After creating, say "save to library" or "create campaign" to use it.';
+        break;
+      case 'audience':
+        nextActionSuggestion = 'After creating, say "create campaign for this audience" to target them.';
+        break;
+      case 'automation':
+        nextActionSuggestion = 'After creating, the rule will run automatically when triggered.';
+        break;
+      default:
+        nextActionSuggestion = '';
+    }
+
+    return {
+      primaryIntent,
+      targetPage,
+      shouldNavigate,
+      preservedContext,
+      nextActionSuggestion,
+    };
+  };
+
+  // Navigate with context preservation
+  const navigateWithContext = (decision: RoutingDecision) => {
+    if (decision.shouldNavigate) {
+      // Store context before navigating
+      if (decision.preservedContext.audience) {
+        setWorkflowState(prev => ({ ...prev, audienceDescription: decision.preservedContext.audience }));
+      }
+      if (decision.preservedContext.campaignType) {
+        setWorkflowState(prev => ({ ...prev, campaignType: decision.preservedContext.campaignType }));
+      }
+
+      // Navigate to target page
+      setActivePage(decision.targetPage);
+
+      // Add navigation message to target page's conversation
+      const navMsg: Message = {
+        id: `nav-${Date.now()}`,
+        type: 'system',
+        content: `Navigated to ${decision.targetPage.charAt(0).toUpperCase() + decision.targetPage.slice(1)}${decision.preservedContext.audience ? ` with audience: "${decision.preservedContext.audience}"` : ''}`,
+        timestamp: new Date(),
+      };
+      setPageMessages(prev => ({
+        ...prev,
+        [decision.targetPage]: [...(prev[decision.targetPage] || []), navMsg]
+      }));
+    }
+  };
+
+  // Get next action based on current state and what was just done
+  const getNextActionForContext = (action: string): string => {
+    const stage = getCurrentWorkflowStage();
+
+    // Action-specific suggestions
+    if (action === 'content_generated') {
+      return '\n\n**Next:** Say **"save to library"** to store it, or **"create campaign"** to use it now.';
+    }
+    if (action === 'content_saved') {
+      return '\n\n**Next:** Go to **Content Library** to view it, or say **"create campaign with this content"**.';
+    }
+    if (action === 'audience_created') {
+      return '\n\n**Next:** Say **"create campaign for this audience"** to target them.';
+    }
+    if (action === 'campaign_created') {
+      return '\n\n**Next:** Say **"generate content"** or **"yes"** to create the message.';
+    }
+    if (action === 'campaign_content_ready') {
+      return '\n\n**Next:** Say **"review"** or **"publish"** to submit for approval.';
+    }
+    if (action === 'campaign_approved') {
+      return '\n\n**Next:** Say **"publish"** or **"execute"** to send the campaign.';
+    }
+    if (action === 'campaign_published') {
+      return '\n\n**Done!** Check your inbox. Say **"show receipt"** for compliance proof, or **"create new campaign"** to start another.';
+    }
+
+    // Stage-based fallback
+    switch (stage) {
+      case 'campaign_created':
+        return '\n\n**Next:** Say **"generate content"** to continue.';
+      case 'content_ready':
+        return '\n\n**Next:** Say **"review"** to submit for approval.';
+      case 'awaiting_approval':
+        return '\n\n**Next:** Check Slack for approval notification.';
+      case 'approved':
+        return '\n\n**Next:** Say **"publish"** to send.';
+      default:
+        return '';
+    }
+  };
+
   // Navigate to a different page
   const handleNavigate = (page: string) => {
     setActivePage(page);
+  };
+
+  // Handle sidebar page change - special logic for AI Studio
+  const handlePageChange = (page: string) => {
+    // Always clear selectedContentItem when navigating away from Content page
+    if (activePage === 'content' && page !== 'content') {
+      setSelectedContentItem(null);
+    }
+
+    if (page === 'studio') {
+      // Check if there's a draft campaign (not published/executed)
+      const hasDraftCampaign = currentCampaign &&
+        currentCampaign.status !== 'published' &&
+        currentCampaign.status !== 'executed' &&
+        currentCampaign.status !== 'completed';
+
+      if (hasDraftCampaign) {
+        // Restore campaign inspector when returning to studio with draft campaign
+        setInspectorType('campaign');
+        setInspectorData({
+          id: currentCampaign.id,
+          name: currentCampaign.name,
+          type: currentCampaign.type,
+          status: currentCampaign.status,
+          content: currentCampaign.content,
+          channels: currentCampaign.channels,
+          gateResults: currentCampaign.gate_results,
+          metrics: currentCampaign.metrics,
+        });
+        setActivePage('studio');
+      } else {
+        // Reset to initial state with AI suggestions
+        setCurrentCampaign(null);
+        setInspectorData(null);
+        setInspectorType('empty');
+        setWorkflowState({});
+        setGeneratedContent(null);
+        // Clear studio messages to show fresh suggestions
+        setPageMessages(prev => ({ ...prev, studio: [] }));
+        setActivePage('studio');
+      }
+    } else {
+      setActivePage(page);
+    }
   };
 
   // Fetch AI suggestions on mount
@@ -410,6 +721,19 @@ export default function App() {
    * Uses full RAG intelligence with page, status, and data awareness
    */
   const handlePageSpecificCommand = async (query: string, page: string): Promise<boolean> => {
+    const lowerQuery = query.toLowerCase();
+
+    // SKIP AI processing for content generation commands - let main handler process these
+    // This ensures handleMultiChannelContentGeneration is called with proper logic
+    if (page === 'content' &&
+        (lowerQuery.includes('create') || lowerQuery.includes('generate') || lowerQuery.includes('make') || lowerQuery.includes('write')) &&
+        (lowerQuery.includes('instagram') || lowerQuery.includes('linkedin') || lowerQuery.includes('twitter') ||
+         lowerQuery.includes('social') || lowerQuery.includes('post') || lowerQuery.includes('template') ||
+         lowerQuery.includes('sms') || lowerQuery.includes('email'))) {
+      console.log('[handlePageSpecificCommand] Skipping AI - content generation command detected');
+      return false; // Fall through to main handler
+    }
+
     // Build comprehensive context including page, workflow state, and available data
     const stage = getCurrentWorkflowStage();
 
@@ -644,7 +968,8 @@ export default function App() {
       // If so, let it fall through to handleMultiChannelContentGeneration
       if (lowerQuery.includes('instagram') || lowerQuery.includes('linkedin') ||
           lowerQuery.includes('twitter') || lowerQuery.includes('social') ||
-          lowerQuery.includes('sms') || lowerQuery.includes('text message')) {
+          lowerQuery.includes('sms') || lowerQuery.includes('text message') ||
+          lowerQuery.includes('post')) {
         return false; // Fall through to main handler for proper multi-channel generation
       }
 
@@ -867,7 +1192,42 @@ export default function App() {
   };
 
   const handleCommandSubmit = async (query: string) => {
-    // Add user message
+    // Check if clarification is needed
+    if (needsClarification(query)) {
+      const userMessage: Message = {
+        id: `user-${Date.now()}`,
+        type: 'user',
+        content: query,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, userMessage]);
+
+      const clarifyMsg: Message = {
+        id: `assistant-${Date.now()}`,
+        type: 'assistant',
+        content: `**What would you like to create?**\n\n• **Campaign** - Marketing outreach (referral, recovery, winback)\n• **Content** - Email, SMS, or social post template\n• **Audience** - Customer segment for targeting\n• **Automation** - Rule (when X happens, do Y)\n\nTry: "Create a referral campaign" or "Create Instagram post for car launch"`,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, clarifyMsg]);
+      return;
+    }
+
+    // CONTEXT-AWARE ROUTING: Determine where this command should be handled
+    const routingDecision = getRoutingDecision(query);
+    console.log('[Routing]', { query, decision: routingDecision, currentPage: activePage });
+
+    // If navigation is needed, navigate first
+    if (routingDecision.shouldNavigate) {
+      navigateWithContext(routingDecision);
+      // Small delay to let navigation complete, then re-process command
+      setTimeout(() => {
+        // Re-run command on new page (it will be added to that page's messages)
+        handleCommandSubmit(query);
+      }, 100);
+      return;
+    }
+
+    // Add user message to current page
     const userMessage: Message = {
       id: `user-${Date.now()}`,
       type: 'user',
@@ -900,6 +1260,14 @@ export default function App() {
         }
       }
 
+      // MARKETING ENGINE: DISABLED - Enable after demo
+      // const engineHandled = await tryMarketingEngine(query);
+      // if (engineHandled) {
+      //   setIsLoading(false);
+      //   setMessages(prev => prev.filter(m => m.content !== 'TrustEye is analyzing your request...'));
+      //   return;
+      // }
+
       // PRIORITY 1: Any "create" or "new" + "campaign" command -> smart campaign creation
       if ((lowerQuery.includes('create') || lowerQuery.includes('new') || lowerQuery.includes('build') || lowerQuery.includes('start')) &&
           (lowerQuery.includes('campaign') || lowerQuery.includes('outreach') || lowerQuery.includes('email'))) {
@@ -918,12 +1286,13 @@ export default function App() {
       // CONTENT GENERATION - Multi-channel content creation
       else if (
         // Direct content generation commands
-        (lowerQuery.includes('generate') && (lowerQuery.includes('content') || lowerQuery.includes('template'))) ||
-        (lowerQuery.includes('create') && (lowerQuery.includes('template') || lowerQuery.includes('sms') || lowerQuery.includes('instagram') || lowerQuery.includes('social'))) ||
-        (lowerQuery.includes('make') && (lowerQuery.includes('template') || lowerQuery.includes('sms') || lowerQuery.includes('instagram') || lowerQuery.includes('post'))) ||
+        (lowerQuery.includes('generate') && (lowerQuery.includes('content') || lowerQuery.includes('template') || lowerQuery.includes('post'))) ||
+        (lowerQuery.includes('create') && (lowerQuery.includes('template') || lowerQuery.includes('sms') || lowerQuery.includes('instagram') || lowerQuery.includes('social') || lowerQuery.includes('post') || lowerQuery.includes('linkedin') || lowerQuery.includes('twitter'))) ||
+        (lowerQuery.includes('make') && (lowerQuery.includes('template') || lowerQuery.includes('sms') || lowerQuery.includes('instagram') || lowerQuery.includes('post') || lowerQuery.includes('social'))) ||
         // Channel-specific content commands without campaign context
         ((lowerQuery.includes('write') || lowerQuery.includes('draft')) && (lowerQuery.includes('email') || lowerQuery.includes('sms') || lowerQuery.includes('message') || lowerQuery.includes('post')))
       ) {
+        console.log('[handleCommandSubmit] Matched CONTENT GENERATION pattern, calling handleMultiChannelContentGeneration');
         await handleMultiChannelContentGeneration(query);
       } else if (lowerQuery.includes('generate') && lowerQuery.includes('content')) {
         await handleContentGeneration();
@@ -1050,13 +1419,13 @@ export default function App() {
                lowerQuery === 'save' || lowerQuery === 'save content') {
         if (generatedContent) {
           // Determine channels from generated content
-          const channels: ContentChannel[] = [];
+          const channels: string[] = [];
           if (generatedContent.email) channels.push('email');
           if (generatedContent.sms) channels.push('sms');
           if (generatedContent.social) channels.push('instagram');
 
           // Determine campaign type from workflow state or default
-          const campaignTypes: CampaignType[] = [];
+          const campaignTypes: string[] = [];
           const goal = workflowState.goal?.toLowerCase() || '';
           if (goal.includes('referral')) campaignTypes.push('referral');
           else if (goal.includes('recovery')) campaignTypes.push('recovery');
@@ -1066,48 +1435,92 @@ export default function App() {
           else if (goal.includes('loyalty')) campaignTypes.push('loyalty');
           else if (goal.includes('service')) campaignTypes.push('service');
           else if (goal.includes('birthday')) campaignTypes.push('birthday');
-          else if (goal.includes('seasonal')) campaignTypes.push('seasonal');
-          else campaignTypes.push('loyalty'); // Default
+          else if (goal.includes('seasonal') || goal.includes('holiday')) campaignTypes.push('promotional');
+          else campaignTypes.push('promotional'); // Default
 
-          // Create new content item
-          const newContentItem: ContentItem = {
-            id: `generated-${Date.now()}`,
-            name: `AI Generated - ${workflowState.goal || 'Campaign Content'}`,
-            type: 'template',
-            channels,
-            campaignTypes,
-            content: {
-              subject: generatedContent.email?.subject || '',
-              body: generatedContent.email?.body || generatedContent.sms?.message || generatedContent.social?.post || '',
-              cta: generatedContent.email?.cta || 'Learn More',
-            },
-            brandScore: generatedContent.brandScore || 85,
-            performance: {
-              timesUsed: 0,
-              avgOpenRate: 0,
-              avgClickRate: 0,
-              bestPerformingIn: campaignTypes[0] || 'loyalty',
-              isMock: false,
-            },
-            createdAt: new Date().toISOString().split('T')[0],
-            updatedAt: new Date().toISOString().split('T')[0],
-          };
+          // Generate a descriptive name
+          const contentName = workflowState.goal
+            ? `AI Generated - ${workflowState.goal.substring(0, 50)}`
+            : `AI Generated - ${channels.join('/')} Content`;
 
-          // Add to dynamic content library
-          setDynamicContentLibrary(prev => [newContentItem, ...prev]);
-
-          const saveMsg: Message = {
-            id: `assistant-${Date.now()}`,
-            type: 'assistant',
-            content: `**Content Saved to Library!**\n\n**Name:** ${newContentItem.name}\n**Channels:** ${channels.join(', ')}\n**Brand Score:** ${newContentItem.brandScore}%\n**Type:** ${campaignTypes.join(', ')}\n\nYou can find it in the **Content Library** tab, or say **"create campaign"** to use it now.`,
+          // Show saving message
+          const savingMsg: Message = {
+            id: `saving-${Date.now()}`,
+            type: 'system',
+            content: 'Saving to Content Library...',
             timestamp: new Date(),
           };
-          setMessages(prev => [...prev, saveMsg]);
+          setMessages(prev => [...prev, savingMsg]);
+
+          try {
+            // Save to backend API
+            const saveResult = await contentApi.create({
+              name: contentName,
+              type: 'template',
+              channels,
+              campaignTypes,
+              content: {
+                subject: generatedContent.email?.subject || '',
+                body: generatedContent.email?.body || '',
+                cta: generatedContent.email?.cta || 'Learn More',
+                post: generatedContent.social?.post || '',
+                hashtags: generatedContent.social?.hashtags || [],
+                message: generatedContent.sms?.message || '',
+              },
+              brandScore: generatedContent.brandScore || 85,
+            });
+
+            if (saveResult.success && saveResult.data) {
+              // Also add to local state for immediate display
+              const newContentItem: ContentItem = {
+                id: saveResult.data.id,
+                name: saveResult.data.name,
+                type: 'template',
+                channels: channels as ContentChannel[],
+                campaignTypes: campaignTypes as CampaignType[],
+                content: {
+                  subject: generatedContent.email?.subject || '',
+                  body: generatedContent.email?.body || generatedContent.sms?.message || generatedContent.social?.post || '',
+                  cta: generatedContent.email?.cta || 'Learn More',
+                },
+                brandScore: generatedContent.brandScore || 85,
+                performance: {
+                  timesUsed: 0,
+                  avgOpenRate: 0,
+                  avgClickRate: 0,
+                  bestPerformingIn: campaignTypes[0] || 'promotional',
+                  isMock: false,
+                },
+                createdAt: new Date().toISOString().split('T')[0],
+                updatedAt: new Date().toISOString().split('T')[0],
+              };
+              setDynamicContentLibrary(prev => [newContentItem, ...prev]);
+
+              const saveMsg: Message = {
+                id: `assistant-${Date.now()}`,
+                type: 'assistant',
+                content: `**Content Saved to Library!**\n\n**Name:** ${saveResult.data.name}\n**ID:** ${saveResult.data.id}\n**Channels:** ${channels.join(', ')}\n**Brand Score:** ${generatedContent.brandScore || 85}%\n**Type:** ${campaignTypes.join(', ')}\n\nYou can find it in the **Content Library** tab, or say **"create campaign"** to use it now.`,
+                timestamp: new Date(),
+              };
+              setMessages(prev => prev.filter(m => m.id !== savingMsg.id).concat(saveMsg));
+            } else {
+              throw new Error(saveResult.error || 'Failed to save');
+            }
+          } catch (error: any) {
+            console.error('Save to library error:', error);
+            const errorMsg: Message = {
+              id: `assistant-${Date.now()}`,
+              type: 'assistant',
+              content: `**Save Failed**\n\nError: ${error?.message || 'Unknown error'}. Please try again.`,
+              timestamp: new Date(),
+            };
+            setMessages(prev => prev.filter(m => m.id !== savingMsg.id).concat(errorMsg));
+          }
         } else {
           const noContentMsg: Message = {
             id: `assistant-${Date.now()}`,
             type: 'assistant',
-            content: `**No content to save yet.**\n\nGenerate content first by saying:\n• "Create a referral email for 5-star reviewers"\n• "Generate content for inactive customers"\n• "Write a winback SMS campaign"`,
+            content: `**No content to save yet.**\n\nGenerate content first by saying:\n• "Create a referral email for 5-star reviewers"\n• "Generate Instagram post for car launch"\n• "Write a winback SMS campaign"`,
             timestamp: new Date(),
           };
           setMessages(prev => [...prev, noContentMsg]);
@@ -1650,6 +2063,234 @@ export default function App() {
       // Remove processing message
       setMessages(prev => prev.filter(m => m.content !== 'TrustEye is analyzing your request...'));
     }
+  };
+
+  // ============================================
+  // MARKETING ENGINE INTEGRATION
+  // Handles: Patch mode (modify active campaign), Create mode (new assets)
+  // DISABLED FOR NOW - Enable after demo testing is complete
+  // ============================================
+  const tryMarketingEngine = async (query: string): Promise<boolean> => {
+    // DISABLED: Return false to let all commands go through existing handlers
+    // The engine backend is ready at /api/ai/engine when we want to enable it
+    return false;
+
+    /* ENABLE LATER:
+    const lowerQuery = query.toLowerCase();
+
+    // VERY CONSERVATIVE: Only use engine for specific patch commands
+    const isPatchCommand = currentCampaign && activePage === 'studio' && (
+      (lowerQuery.includes('add') && (lowerQuery.includes('sms') || lowerQuery.includes('slack') || lowerQuery.includes('website'))) ||
+      (lowerQuery.includes('remove') && (lowerQuery.includes('sms') || lowerQuery.includes('slack') || lowerQuery.includes('email')))
+    );
+
+    if (!isPatchCommand) {
+      return false;
+    }
+    */
+
+    try {
+      // Build context for the engine
+      const activeDraft = currentCampaign ? {
+        type: 'campaign' as const,
+        fields: {
+          name: currentCampaign.name,
+          type: currentCampaign.campaignType || currentCampaign.type,
+          channels: currentCampaign.channels || [currentCampaign.channel],
+          audience: currentCampaign.audienceDescription,
+          schedule: currentCampaign.schedule,
+          content: currentCampaign.content ? 'has content' : undefined
+        }
+      } : undefined;
+
+      console.log('[MarketingEngine] Calling engine with:', { query, activeDraft });
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3009'}/api/ai/engine`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: query,
+          activeDraft,
+          brandId: 'premier-nissan'
+        })
+      });
+
+      if (!response.ok) {
+        console.warn('[MarketingEngine] API error, falling back to existing handlers');
+        return false;
+      }
+
+      const result = await response.json();
+      console.log('[MarketingEngine] Response:', result);
+
+      if (!result.success) {
+        return false;
+      }
+
+      // Handle different modes
+      switch (result.mode) {
+        case 'patch':
+          await handleEnginePatch(result.data, result.message);
+          return true;
+
+        case 'create':
+          await handleEngineCreate(result.data, result.message);
+          return true;
+
+        case 'match':
+          await handleEngineMatch(result.data, result.message);
+          return true;
+
+        case 'rag':
+          // Show RAG answer as a message
+          const ragMsg: Message = {
+            id: `assistant-${Date.now()}`,
+            type: 'assistant',
+            content: result.message,
+            timestamp: new Date(),
+          };
+          setMessages(prev => [...prev, ragMsg]);
+          return true;
+
+        case 'clarify':
+        default:
+          // Fall through to existing handlers
+          return false;
+      }
+    } catch (error) {
+      console.error('[MarketingEngine] Error:', error);
+      return false; // Fall through to existing handlers
+    }
+  };
+
+  // Handle patch mode from engine
+  const handleEnginePatch = async (patch: any, message: string) => {
+    if (!currentCampaign) return;
+
+    // Show confirmation with action buttons
+    const patchMsg: Message = {
+      id: `assistant-${Date.now()}`,
+      type: 'assistant',
+      content: `**Suggested Change**\n\n${message}\n\n*Click Apply to confirm, or type a different command.*`,
+      timestamp: new Date(),
+      data: {
+        type: 'patch_confirmation',
+        patch,
+        actions: [
+          { label: 'Apply', action: 'apply_patch', primary: true },
+          { label: 'Cancel', action: 'cancel_patch' }
+        ]
+      }
+    };
+    setMessages(prev => [...prev, patchMsg]);
+
+    // Auto-apply high confidence patches (> 0.9)
+    if (patch.confidence >= 0.9) {
+      await applyPatch(patch);
+    }
+  };
+
+  // Apply a patch to the current campaign
+  const applyPatch = async (patch: any) => {
+    if (!currentCampaign) return;
+
+    const updated = { ...currentCampaign };
+
+    switch (patch.action) {
+      case 'set':
+        (updated as any)[patch.field] = patch.value;
+        break;
+      case 'add':
+        if (Array.isArray((updated as any)[patch.field])) {
+          (updated as any)[patch.field] = [...(updated as any)[patch.field], patch.value];
+        } else {
+          (updated as any)[patch.field] = [patch.value];
+        }
+        break;
+      case 'remove':
+        if (Array.isArray((updated as any)[patch.field])) {
+          (updated as any)[patch.field] = (updated as any)[patch.field].filter(
+            (v: any) => v !== patch.value
+          );
+        }
+        break;
+    }
+
+    // Update state
+    setCurrentCampaign(updated);
+
+    // Update inspector
+    if (patch.field === 'channels') {
+      const channelDisplay = (updated.channels || []).map((c: string) =>
+        c.charAt(0).toUpperCase() + c.slice(1)
+      ).join(' + ');
+      setInspectorData((prev: any) => ({ ...prev, channels: updated.channels, channel: channelDisplay }));
+      setWorkflowState(prev => ({ ...prev, channels: updated.channels, channel: channelDisplay }));
+    } else if (patch.field === 'audience') {
+      setInspectorData((prev: any) => ({ ...prev, audienceDescription: patch.value }));
+      setWorkflowState(prev => ({ ...prev, audience: patch.value }));
+    }
+
+    // Confirm
+    const confirmMsg: Message = {
+      id: `assistant-${Date.now()}`,
+      type: 'assistant',
+      content: `✅ **Applied:** ${patch.field} updated to ${JSON.stringify(patch.value)}`,
+      timestamp: new Date(),
+    };
+    setMessages(prev => [...prev, confirmMsg]);
+  };
+
+  // Handle create mode from engine
+  const handleEngineCreate = async (asset: any, message: string) => {
+    const createMsg: Message = {
+      id: `assistant-${Date.now()}`,
+      type: 'assistant',
+      content: `🎉 **${message}**\n\n**Type:** ${asset.type}\n**Name:** ${asset.name}\n${asset.description ? `**Description:** ${asset.description}\n` : ''}${asset.tags?.length ? `**Tags:** ${asset.tags.join(', ')}\n` : ''}\n\n*This pattern is now saved. Next time you ask for something similar, I'll find it instantly!*`,
+      timestamp: new Date(),
+      data: {
+        type: 'created_asset',
+        asset
+      }
+    };
+    setMessages(prev => [...prev, createMsg]);
+
+    // If it's an audience, offer to use it
+    if (asset.type === 'audience' && currentCampaign) {
+      const useMsg: Message = {
+        id: `assistant-${Date.now() + 1}`,
+        type: 'assistant',
+        content: `Would you like to use "${asset.name}" as the audience for your current campaign?`,
+        timestamp: new Date(),
+        data: {
+          type: 'action_prompt',
+          actions: [
+            { label: 'Use This Audience', action: 'use_audience', data: asset },
+            { label: 'Keep Current', action: 'dismiss' }
+          ]
+        }
+      };
+      setMessages(prev => [...prev, useMsg]);
+    }
+  };
+
+  // Handle match mode from engine
+  const handleEngineMatch = async (asset: any, message: string) => {
+    const matchMsg: Message = {
+      id: `assistant-${Date.now()}`,
+      type: 'assistant',
+      content: `🔍 **${message}**\n\n**Name:** ${asset.name}\n${asset.description ? `**Description:** ${asset.description}\n` : ''}${asset.criteria ? `**Criteria:** ${typeof asset.criteria === 'string' ? asset.criteria : JSON.stringify(asset.criteria)}\n` : ''}\n\n*This is a learned pattern from previous usage.*`,
+      timestamp: new Date(),
+      data: {
+        type: 'matched_asset',
+        asset,
+        actions: [
+          { label: 'Use This', action: 'use_match', primary: true },
+          { label: 'Create New Instead', action: 'create_new' }
+        ]
+      }
+    };
+    setMessages(prev => [...prev, matchMsg]);
   };
 
   // Smart Campaign Creation - parses any create command and builds campaign
@@ -2330,11 +2971,13 @@ export default function App() {
 
   // Handle Multi-Channel Content Generation (from command)
   const handleMultiChannelContentGeneration = async (query: string) => {
+    console.log('[handleMultiChannelContentGeneration] Starting with query:', query);
     const lowerQuery = query.toLowerCase();
 
     // PRIORITY: If we have a current campaign, use handleContentGeneration instead
     // This preserves campaign context (type, audience, etc.)
     if (currentCampaign && (lowerQuery === 'generate content' || lowerQuery === 'create content' || lowerQuery === 'yes')) {
+      console.log('[handleMultiChannelContentGeneration] Delegating to handleContentGeneration');
       await handleContentGeneration();
       return;
     }
@@ -2344,6 +2987,7 @@ export default function App() {
     if (lowerQuery.includes('email')) channels.push('email');
     if (lowerQuery.includes('sms') || lowerQuery.includes('text message')) channels.push('sms');
     if (lowerQuery.includes('instagram') || lowerQuery.includes('social') || lowerQuery.includes('post')) channels.push('social');
+    console.log('[handleMultiChannelContentGeneration] Detected channels:', channels);
 
     // Default to current campaign channels or all channels
     if (channels.length === 0) {
@@ -2405,7 +3049,8 @@ export default function App() {
 
     try {
       // Use original query from campaign for full context
-      const campaignGoal = currentCampaign?.originalQuery || `${campaignType} campaign content`;
+      const campaignGoal = currentCampaign?.originalQuery || query;
+      console.log('[handleMultiChannelContentGeneration] API params:', { campaignType, audience, channels, goal: campaignGoal });
 
       const contentResponse = await aiApi.generateContent({
         campaignType,
@@ -2416,8 +3061,40 @@ export default function App() {
         customInstructions: customInstructions || undefined,
       });
 
-      const content = contentResponse.data;
+      console.log('[handleMultiChannelContentGeneration] API response:', contentResponse);
+      let content = contentResponse.data;
       setGeneratedContent(content || null);
+
+      // Generate image for social posts
+      if (content?.social && channels.includes('social')) {
+        console.log('[handleMultiChannelContentGeneration] Generating image for social post...');
+        try {
+          const imagePrompt = `Marketing image for ${campaignType} campaign: ${content.social.post.substring(0, 100)}`;
+          const imageResponse = await imageApi.generate({
+            prompt: imagePrompt,
+            channel: 'instagram',
+            brandContext: {
+              primaryColor: '#1e40af',
+              style: 'professional, modern, automotive',
+              industry: 'automotive dealership',
+            },
+            count: 1,
+          });
+          if (imageResponse.success && imageResponse.data?.images?.[0]?.url) {
+            console.log('[handleMultiChannelContentGeneration] Image generated:', imageResponse.data.images[0].url);
+            content = {
+              ...content,
+              social: {
+                ...content.social,
+                imageUrl: imageResponse.data.images[0].url,
+              },
+            };
+            setGeneratedContent(content);
+          }
+        } catch (imgError) {
+          console.warn('[handleMultiChannelContentGeneration] Image generation failed, continuing without image:', imgError);
+        }
+      }
 
       // Build response showing all channels
       let responseContent = `**Content Generated!** Brand Score: **${content?.brandScore || 85}%**\n\n`;
@@ -2434,9 +3111,22 @@ export default function App() {
       }
 
       if (content?.social) {
-        responseContent += `### Social\n`;
+        responseContent += `### Social${content.social.imageUrl ? ' (with image)' : ''}\n`;
         responseContent += `${content.social.post}\n`;
-        responseContent += `${content.social.hashtags?.map(h => h.startsWith('#') ? h : `#${h}`).join(' ') || ''}\n\n`;
+        responseContent += `${content.social.hashtags?.map(h => h.startsWith('#') ? h : `#${h}`).join(' ') || ''}\n`;
+        if (content.social.imageUrl) {
+          responseContent += `\n📸 *Image generated - see preview panel →*\n`;
+        }
+        responseContent += '\n';
+      }
+
+      // Website Banner - uses email content for banner
+      if (channels.includes('website')) {
+        responseContent += `### 🌐 Website Banner\n`;
+        responseContent += `**Headline:** ${content?.email?.subject || content?.social?.post?.substring(0, 50) || 'New Promotion'}\n`;
+        responseContent += `**Text:** ${(content?.email?.body || content?.social?.post || '').substring(0, 80)}...\n`;
+        responseContent += `**CTA:** ${content?.email?.cta || 'Learn More'}\n`;
+        responseContent += `\n*Banner will update on demo site when published →*\n\n`;
       }
 
       responseContent += `**Brand Score Breakdown:**\n`;
@@ -2476,17 +3166,28 @@ export default function App() {
       if (channels.includes('social')) {
         contentAdjustments.push({
           icon: '📸',
-          text: 'Added engagement elements',
-          reason: `${content?.social?.hashtags?.length || 2} relevant hashtags, under 280 chars`
+          text: content?.social?.imageUrl ? 'Generated visual + engagement elements' : 'Added engagement elements',
+          reason: content?.social?.imageUrl
+            ? `AI-generated image, ${content?.social?.hashtags?.length || 2} hashtags`
+            : `${content?.social?.hashtags?.length || 2} relevant hashtags, under 280 chars`
+        });
+      }
+      if (channels.includes('website')) {
+        contentAdjustments.push({
+          icon: '🌐',
+          text: 'Website banner optimized',
+          reason: 'Concise headline + clear CTA for banner display'
         });
       }
 
-      // Add brand-specific adjustments
-      contentAdjustments.push({
-        icon: '🎯',
-        text: 'Personalization placeholders added',
-        reason: 'Using [First Name] and [Vehicle] for 23% higher engagement'
-      });
+      // Add brand-specific adjustments (only for email/SMS, not social-only)
+      if (channels.includes('email') || channels.includes('sms')) {
+        contentAdjustments.push({
+          icon: '🎯',
+          text: 'Personalization placeholders added',
+          reason: 'Using [First Name] and [Vehicle] for 23% higher engagement'
+        });
+      }
 
       // Add campaign-type specific adjustments
       if (campaignType === 'referral') {
@@ -2537,12 +3238,40 @@ export default function App() {
         },
       };
       setMessages(prev => prev.filter(m => m.id !== generatingMsg.id).concat(responseMsg));
-    } catch (error) {
-      console.error('Multi-channel content generation error:', error);
+
+      // Show content preview in the inspector panel
+      if (channels.includes('social') || channels.includes('instagram')) {
+        setInspectorType('content');
+        setInspectorData({
+          content,
+          brandScore: content?.brandScore || 85,
+          channel: 'instagram',
+          campaignType,
+        });
+      } else if (channels.includes('email')) {
+        setInspectorType('content');
+        setInspectorData({
+          content,
+          brandScore: content?.brandScore || 85,
+          channel: 'email',
+          campaignType,
+        });
+      } else if (channels.includes('sms')) {
+        setInspectorType('content');
+        setInspectorData({
+          content,
+          brandScore: content?.brandScore || 85,
+          channel: 'sms',
+          campaignType,
+        });
+      }
+    } catch (error: any) {
+      console.error('[handleMultiChannelContentGeneration] Error:', error);
+      console.error('[handleMultiChannelContentGeneration] Error stack:', error?.stack);
       const errorMsg: Message = {
         id: `assistant-${Date.now()}`,
         type: 'assistant',
-        content: '**Generation Failed**\n\nUnable to generate content. Please try again.',
+        content: `**Generation Failed**\n\nError: ${error?.message || 'Unknown error'}. Please check browser console.`,
         timestamp: new Date(),
       };
       setMessages(prev => prev.filter(m => m.id !== generatingMsg.id).concat(errorMsg));
@@ -2577,12 +3306,24 @@ export default function App() {
     const content = contentResponse.data;
     setGeneratedContent(content || null);
 
+    // For website channel, use email content as banner content
+    const campaignContent = currentCampaign.channels?.includes('website')
+      ? {
+          ...content?.email,
+          headline: content?.email?.subject,
+          // Ensure we have content for banner display
+        }
+      : content?.email;
+
     const updatedCampaign = {
       ...currentCampaign,
-      content: content?.email,
+      content: campaignContent,
       brandScore: content?.brandScore,
       brandScoreDetails: content?.brandScoreDetails,
       missingSteps: [], // Content is now generated
+      // Ensure channels are preserved for preview
+      channels: currentCampaign.channels,
+      channel: currentCampaign.channel,
     };
 
     setCurrentCampaign(updatedCampaign);
@@ -2596,8 +3337,19 @@ export default function App() {
     }));
 
     let responseContent = `**Content Generated!** Brand Score: **${content?.brandScore || 85}%**\n\n`;
-    responseContent += `**Subject:** ${content?.email?.subject || 'N/A'}\n\n`;
-    responseContent += `**Preview:**\n${(content?.email?.body || '').substring(0, 200)}...\n\n`;
+
+    // Show appropriate preview based on channel
+    if (currentCampaign.channels?.includes('website')) {
+      responseContent += `### 🌐 Website Banner\n`;
+      responseContent += `**Headline:** ${content?.email?.subject || 'New Promotion'}\n`;
+      responseContent += `**Text:** ${(content?.email?.body || '').substring(0, 100)}...\n`;
+      responseContent += `**CTA:** ${content?.email?.cta || 'Learn More'}\n\n`;
+      responseContent += `*See banner preview in right panel →*\n\n`;
+    } else {
+      responseContent += `**Subject:** ${content?.email?.subject || 'N/A'}\n\n`;
+      responseContent += `**Preview:**\n${(content?.email?.body || '').substring(0, 200)}...\n\n`;
+    }
+
     responseContent += `**Brand Score Breakdown:**\n`;
     responseContent += `• Tone: ${content?.brandScoreDetails?.toneAlignment || 85}%\n`;
     responseContent += `• Voice: ${content?.brandScoreDetails?.voiceConsistency || 85}%\n`;
@@ -2897,6 +3649,36 @@ export default function App() {
         receipt: receiptData,
       };
       setCurrentCampaign(completedCampaign);
+
+      // If website channel, update demo site banner
+      console.log('[Campaign Execute] Checking website channel:', {
+        channels: currentCampaign.channels,
+        channel: currentCampaign.channel
+      });
+      if (currentCampaign.channels?.includes('website') || currentCampaign.channel?.toLowerCase().includes('website')) {
+        try {
+          const bannerContent = currentCampaign.content;
+          console.log('[Campaign Execute] Posting to demo site:', bannerContent);
+          const response = await fetch('http://localhost:3001/api/state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              displayAd: {
+                headline: bannerContent?.subject || bannerContent?.headline || currentCampaign.name,
+                body: bannerContent?.body?.substring(0, 100) || 'Check out our latest offers!',
+                ctaText: bannerContent?.cta || 'Learn More',
+                ctaUrl: '/inventory',
+              }
+            })
+          });
+          const result = await response.json();
+          console.log('[Campaign Execute] Demo site banner updated:', result);
+        } catch (e) {
+          console.error('[Campaign Execute] Failed to update demo site banner:', e);
+        }
+      } else {
+        console.log('[Campaign Execute] No website channel, skipping banner update');
+      }
 
       // Update inspector to show receipt
       setInspectorData({
@@ -3210,7 +3992,7 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
   if (activePage === 'studio') {
     return (
       <div className="h-screen flex bg-slate-50">
-        <Sidebar activeTool={activePage} onToolChange={setActivePage} />
+        <Sidebar activeTool={activePage} onToolChange={handlePageChange} />
 
         {/* Left: Workflow Blocks */}
         <div className="ml-[64px] flex-shrink-0 h-full overflow-hidden">
@@ -3512,6 +4294,157 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
             await handleCampaignExecute();
           }}
           onStartNew={handleStartNew}
+          onContentUpdate={(updatedContent) => {
+            // Update campaign content when edited
+            if (currentCampaign) {
+              const updated = { ...currentCampaign, content: updatedContent };
+              setCurrentCampaign(updated);
+              setInspectorData(updated);
+              const msg: Message = {
+                id: `assistant-${Date.now()}`,
+                type: 'assistant',
+                content: `✅ **Content updated!** Your changes have been saved.\n\nReady to submit for review? Say "review" or click "Submit for 3-Gate Approval".`,
+                timestamp: new Date(),
+              };
+              setMessages(prev => [...prev, msg]);
+            }
+          }}
+          onRegenerateImage={async () => {
+            // Regenerate image for social content
+            if (currentCampaign?.content) {
+              const msg: Message = {
+                id: `assistant-${Date.now()}`,
+                type: 'assistant',
+                content: `🎨 **Generating new image...**`,
+                timestamp: new Date(),
+              };
+              setMessages(prev => [...prev, msg]);
+
+              try {
+                const imagePrompt = `Marketing image for ${currentCampaign.campaignType} campaign: ${currentCampaign.content.body?.substring(0, 100) || 'promotional content'}`;
+                const imageResponse = await imageApi.generate({
+                  prompt: imagePrompt,
+                  channel: 'instagram',
+                  brandContext: {
+                    primaryColor: '#1e40af',
+                    style: 'professional, modern, automotive',
+                    industry: 'automotive dealership',
+                  },
+                  count: 1,
+                });
+
+                if (imageResponse.success && imageResponse.data?.images?.[0]?.url) {
+                  const newImageUrl = imageResponse.data.images[0].url;
+                  const updatedContent = { ...currentCampaign.content, imageUrl: newImageUrl };
+                  const updated = { ...currentCampaign, content: updatedContent };
+                  setCurrentCampaign(updated);
+                  setInspectorData(updated);
+
+                  const successMsg: Message = {
+                    id: `assistant-${Date.now()}`,
+                    type: 'assistant',
+                    content: `✅ **New image generated!** Preview updated.`,
+                    timestamp: new Date(),
+                  };
+                  setMessages(prev => prev.filter(m => m.content !== '🎨 **Generating new image...**').concat(successMsg));
+                }
+              } catch (error) {
+                console.error('Image regeneration failed:', error);
+                const errorMsg: Message = {
+                  id: `assistant-${Date.now()}`,
+                  type: 'assistant',
+                  content: `❌ Failed to generate new image. Please try again.`,
+                  timestamp: new Date(),
+                };
+                setMessages(prev => prev.filter(m => m.content !== '🎨 **Generating new image...**').concat(errorMsg));
+              }
+            }
+          }}
+          onSaveToLibrary={async () => {
+            // Direct save for content type in studio
+            const content = inspectorData?.content;
+            if (!content) return;
+            try {
+              const channel = content.social ? 'social' : content.email ? 'email' : 'sms';
+              await contentApi.create({
+                name: `Generated ${channel} content`,
+                channel,
+                campaignType: inspectorData?.campaignType || 'promotional',
+                content: content.social?.post || content.email?.body || content.sms?.message || '',
+                subject: content.email?.subject,
+                hashtags: content.social?.hashtags,
+                imageUrl: content.social?.imageUrl,
+              });
+              const successMsg: Message = {
+                id: `assistant-${Date.now()}`,
+                type: 'assistant',
+                content: `✅ **Content saved to library!**`,
+                timestamp: new Date(),
+              };
+              setMessages(prev => [...prev, successMsg]);
+              setInspectorType('empty');
+              setInspectorData(null);
+            } catch (error) {
+              console.error('Save failed:', error);
+            }
+          }}
+          onCreateCampaign={() => {
+            // Start campaign creation with the preloaded content
+            const contentForCampaign = inspectorData?.content;
+            const channel = contentForCampaign?.social ? 'Instagram' : contentForCampaign?.email ? 'Email' : 'SMS';
+            const channelLower = channel.toLowerCase() === 'instagram' ? 'social' : channel.toLowerCase();
+            const campaignType = inspectorData?.campaignType || 'promotional';
+            const campaignName = `${campaignType.charAt(0).toUpperCase() + campaignType.slice(1)} Campaign - ${new Date().toLocaleDateString()}`;
+
+            // Create campaign object with content but missing audience
+            const campaignData = {
+              type: 'campaign_created',
+              name: campaignName,
+              campaignType: campaignType,
+              campaignLabel: campaignType.charAt(0).toUpperCase() + campaignType.slice(1),
+              status: 'draft',
+              channels: [channelLower],
+              channel: channel,
+              content: contentForCampaign?.social ? {
+                body: contentForCampaign.social.post,
+                hashtags: contentForCampaign.social.hashtags,
+                imageUrl: contentForCampaign.social.imageUrl,
+              } : contentForCampaign?.email ? {
+                subject: contentForCampaign.email.subject,
+                body: contentForCampaign.email.body,
+                cta: contentForCampaign.email.cta,
+              } : {
+                body: contentForCampaign?.sms?.message,
+              },
+              brandScore: inspectorData?.brandScore || 85,
+              audienceId: null,
+              audienceName: null,
+              audienceSize: 0,
+              audienceDescription: null,
+              missingSteps: ['audience'],
+            };
+
+            setCurrentCampaign(campaignData);
+            setGeneratedContent(contentForCampaign);
+            setWorkflowState({
+              campaignType: campaignType,
+              campaignName: campaignName,
+              channel: channel,
+              channels: [channelLower],
+              hasContent: true,
+            });
+            setInspectorType('campaign');
+            setInspectorData(campaignData);
+
+            // Prompt for audience selection
+            const promptMsg: Message = {
+              id: `assistant-${Date.now()}`,
+              type: 'assistant',
+              content: `**Campaign Created: ${campaignName}**\n\n**Ready:**\n• Content: ${channel} ✓\n• Channel: ${channel} ✓\n\n**Next: Select an audience**\n\nTry: "Target 5-star reviewers" or "Send to inactive customers"`,
+              timestamp: new Date(),
+            };
+            setMessages(prev => [...prev, promptMsg]);
+          }}
         />
       </div>
     );
@@ -3519,10 +4452,11 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
 
   // Campaigns page
   if (activePage === 'campaigns') {
+    const pageHasMessages = (pageMessages['campaigns'] || []).length > 0;
     return (
       <div className="h-screen flex bg-slate-50 overflow-hidden">
-        <Sidebar activeTool={activePage} onToolChange={setActivePage} />
-        
+        <Sidebar activeTool={activePage} onToolChange={handlePageChange} />
+
         {/* Left: Filters */}
         <div className="ml-[64px]">
           <FiltersPanel page="campaigns" />
@@ -3530,18 +4464,28 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
 
         {/* Middle: Unified Canvas + Command Box */}
         <div className="flex-1 flex flex-col h-screen overflow-hidden bg-white border-l border-r border-slate-200">
-          {/* Scrollable Content */}
+          {/* Scrollable Content - Show conversation if there are messages, otherwise show page */}
           <div className="flex-1 overflow-y-auto bg-white">
-            <Suspense fallback={<PageLoader />}>
-              <CampaignsPage />
-            </Suspense>
+            {pageHasMessages ? (
+              <ConversationFeed
+                messages={messages}
+                onTemplateClick={handleCommandSubmit}
+                onContentEdit={handleContentEdit}
+                suggestions={[]}
+                isLoading={isLoading}
+              />
+            ) : (
+              <Suspense fallback={<PageLoader />}>
+                <CampaignsPage />
+              </Suspense>
+            )}
           </div>
 
           {/* Fixed Command Box at Bottom */}
           <div className="flex-shrink-0 px-6 py-3 bg-white border-t border-slate-200 sticky bottom-0 z-20">
             <CommandBox
               onSubmit={handleCommandSubmit}
-              placeholder="Show running campaigns, pause campaign X, show metrics..."
+              placeholder="Show running campaigns, create campaign, show metrics..."
               position={commandPosition}
               onPositionChange={setCommandPosition}
             />
@@ -3556,10 +4500,11 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
 
   // Audiences page
   if (activePage === 'audiences') {
+    const pageHasMessages = (pageMessages['audiences'] || []).length > 0;
     return (
       <div className="h-screen flex bg-slate-50 overflow-hidden">
-        <Sidebar activeTool={activePage} onToolChange={setActivePage} />
-        
+        <Sidebar activeTool={activePage} onToolChange={handlePageChange} />
+
         {/* Left: Filters */}
         <div className="ml-[64px]">
           <FiltersPanel page="audiences" />
@@ -3569,9 +4514,19 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
         <div className="flex-1 flex flex-col h-screen overflow-hidden bg-white border-l border-r border-slate-200">
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto bg-white">
-            <Suspense fallback={<PageLoader />}>
-              <AudiencesPage />
-            </Suspense>
+            {pageHasMessages ? (
+              <ConversationFeed
+                messages={messages}
+                onTemplateClick={handleCommandSubmit}
+                onContentEdit={handleContentEdit}
+                suggestions={[]}
+                isLoading={isLoading}
+              />
+            ) : (
+              <Suspense fallback={<PageLoader />}>
+                <AudiencesPage />
+              </Suspense>
+            )}
           </div>
 
           {/* Fixed Command Box at Bottom */}
@@ -3593,6 +4548,7 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
 
   // Content Library page
   if (activePage === 'content') {
+    const pageHasMessages = (pageMessages['content'] || []).length > 0;
     const handleCreateCampaignFromContent = () => {
       if (selectedContentItem) {
         // Navigate to campaigns with content pre-selected
@@ -3605,7 +4561,7 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
 
     return (
       <div className="h-screen flex bg-slate-50 overflow-hidden">
-        <Sidebar activeTool={activePage} onToolChange={setActivePage} />
+        <Sidebar activeTool={activePage} onToolChange={handlePageChange} />
 
         {/* Left: Filters */}
         <div className="ml-[64px]">
@@ -3623,29 +4579,39 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
         <div className="flex-1 flex flex-col h-screen overflow-hidden bg-white border-l border-r border-slate-200">
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto bg-white">
-            <Suspense fallback={<PageLoader />}>
-              <ContentLibraryPage
-                onContentSelect={setSelectedContentItem}
-                scrollToSection={contentSectionScroll}
-                contentItems={dynamicContentLibrary}
-                brandTone={brandTone}
-                onBrandToneUpdate={setBrandTone}
+            {pageHasMessages ? (
+              <ConversationFeed
+                messages={messages}
+                onTemplateClick={handleCommandSubmit}
+                onContentEdit={handleContentEdit}
+                suggestions={[]}
+                isLoading={isLoading}
               />
-            </Suspense>
+            ) : (
+              <Suspense fallback={<PageLoader />}>
+                <ContentLibraryPage
+                  onContentSelect={setSelectedContentItem}
+                  scrollToSection={contentSectionScroll}
+                  contentItems={dynamicContentLibrary}
+                  brandTone={brandTone}
+                  onBrandToneUpdate={setBrandTone}
+                />
+              </Suspense>
+            )}
           </div>
 
           {/* Fixed Command Box at Bottom */}
           <div className="flex-shrink-0 px-6 py-3 bg-white border-t border-slate-200 sticky bottom-0 z-20">
             <CommandBox
               onSubmit={handleCommandSubmit}
-              placeholder="Create fun email for holiday sale, generate SMS template..."
+              placeholder="Create Instagram post for car launch, generate email template..."
               position={commandPosition}
               onPositionChange={setCommandPosition}
             />
           </div>
         </div>
 
-        {/* Right: Content Preview Panel or Empty Inspector */}
+        {/* Right: Content Preview Panel or Inspector */}
         {selectedContentItem ? (
           <div className="w-[340px] border-l border-slate-200 bg-white flex-shrink-0">
             <ContentPreviewPanel
@@ -3654,6 +4620,131 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
               onCreateCampaign={handleCreateCampaignFromContent}
             />
           </div>
+        ) : inspectorType === 'content' && inspectorData ? (
+          <InspectorPanel
+            type="content"
+            data={inspectorData}
+            onClose={() => {
+              setInspectorType('empty');
+              setInspectorData(null);
+            }}
+            onSaveToLibrary={async () => {
+              // Direct save without going through AI chat
+              const content = inspectorData?.content;
+              if (!content) return;
+
+              try {
+                const channel = content.social ? 'social' : content.email ? 'email' : 'sms';
+                const saveData = {
+                  name: `Generated ${channel} content`,
+                  channel,
+                  campaignType: inspectorData?.campaignType || 'promotional',
+                  content: content.social?.post || content.email?.body || content.sms?.message || '',
+                  subject: content.email?.subject,
+                  hashtags: content.social?.hashtags,
+                  imageUrl: content.social?.imageUrl,
+                };
+
+                const result = await contentApi.create(saveData);
+
+                // Add success message to chat
+                const successMsg: Message = {
+                  id: `assistant-${Date.now()}`,
+                  type: 'assistant',
+                  content: `✅ **Content saved to library!**\n\nYour ${channel} content has been saved and is ready to use in future campaigns.`,
+                  timestamp: new Date(),
+                };
+                setMessages(prev => [...prev, successMsg]);
+
+                // Clear inspector
+                setInspectorType('empty');
+                setInspectorData(null);
+              } catch (error) {
+                const errorMsg: Message = {
+                  id: `assistant-${Date.now()}`,
+                  type: 'assistant',
+                  content: `❌ Failed to save content. Please try again.`,
+                  timestamp: new Date(),
+                };
+                setMessages(prev => [...prev, errorMsg]);
+              }
+            }}
+            onCreateCampaign={() => {
+              // Navigate to studio with content pre-loaded as campaign
+              const contentForCampaign = inspectorData?.content;
+              const channel = contentForCampaign?.social ? 'Instagram' : contentForCampaign?.email ? 'Email' : 'SMS';
+              const channelLower = channel.toLowerCase() === 'instagram' ? 'social' : channel.toLowerCase();
+              const campaignType = inspectorData?.campaignType || 'promotional';
+              const campaignName = `${campaignType.charAt(0).toUpperCase() + campaignType.slice(1)} Campaign - ${new Date().toLocaleDateString()}`;
+
+              // Create campaign object matching the structure from handleSmartCampaignCreate
+              const campaignData = {
+                type: 'campaign_created',
+                name: campaignName,
+                campaignType: campaignType,
+                campaignLabel: campaignType.charAt(0).toUpperCase() + campaignType.slice(1),
+                status: 'draft',
+                channels: [channelLower],
+                channel: channel,
+                // Content IS set (coming from content generation)
+                content: contentForCampaign?.social ? {
+                  body: contentForCampaign.social.post,
+                  hashtags: contentForCampaign.social.hashtags,
+                  imageUrl: contentForCampaign.social.imageUrl,
+                } : contentForCampaign?.email ? {
+                  subject: contentForCampaign.email.subject,
+                  body: contentForCampaign.email.body,
+                  cta: contentForCampaign.email.cta,
+                } : {
+                  body: contentForCampaign?.sms?.message,
+                },
+                brandScore: inspectorData?.brandScore || 85,
+                // Audience NOT set yet - this is what's missing
+                audienceId: null,
+                audienceName: null,
+                audienceSize: 0,
+                audienceDescription: null,
+                missingSteps: ['audience'], // KEY: audience is missing, not content
+              };
+
+              // Set current campaign
+              setCurrentCampaign(campaignData);
+              setGeneratedContent(contentForCampaign);
+
+              // Set workflow state - content yes, audience no
+              setWorkflowState({
+                campaignType: campaignType,
+                campaignName: campaignName,
+                channel: channel,
+                channels: [channelLower],
+                hasContent: true,
+                // Audience intentionally NOT set
+                audience: undefined,
+                audienceDescription: undefined,
+                audienceSize: undefined,
+              });
+
+              // Set inspector to show campaign preview
+              setInspectorType('campaign');
+              setInspectorData(campaignData);
+
+              // Clear content page messages, set studio message
+              setPageMessages(prev => ({
+                ...prev,
+                content: [], // Clear content page
+                studio: [{
+                  id: `assistant-${Date.now()}`,
+                  type: 'assistant' as const,
+                  content: `**Campaign Created: ${campaignName}**\n\n**What's ready:**\n• Content: ${channel} post ✓\n• Channel: ${channel} ✓\n• Brand Score: ${campaignData.brandScore}% ✓\n\n**Next step: Select an audience**\n\nTry:\n• "Target 5-star reviewers"\n• "Send to inactive customers"\n• "Reach customers from last 30 days"\n\nOr select an audience from the left panel.`,
+                  timestamp: new Date(),
+                  data: { type: 'campaign_from_content', campaign: campaignData },
+                }]
+              }));
+
+              // Navigate to studio
+              setActivePage('studio');
+            }}
+          />
         ) : (
           <InspectorPanel type="empty" />
         )}
@@ -3663,10 +4754,11 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
 
   // Automations page
   if (activePage === 'automations') {
+    const pageHasMessages = (pageMessages['automations'] || []).length > 0;
     return (
       <div className="h-screen flex bg-slate-50 overflow-hidden">
-        <Sidebar activeTool={activePage} onToolChange={setActivePage} />
-        
+        <Sidebar activeTool={activePage} onToolChange={handlePageChange} />
+
         {/* Left: Filters */}
         <div className="ml-[64px]">
           <FiltersPanel page="automations" />
@@ -3676,9 +4768,19 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
         <div className="flex-1 flex flex-col h-screen overflow-hidden bg-white border-l border-r border-slate-200">
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto bg-white">
-            <Suspense fallback={<PageLoader />}>
-              <AutomationsPage />
-            </Suspense>
+            {pageHasMessages ? (
+              <ConversationFeed
+                messages={messages}
+                onTemplateClick={handleCommandSubmit}
+                onContentEdit={handleContentEdit}
+                suggestions={[]}
+                isLoading={isLoading}
+              />
+            ) : (
+              <Suspense fallback={<PageLoader />}>
+                <AutomationsPage />
+              </Suspense>
+            )}
           </div>
 
           {/* Fixed Command Box at Bottom */}
@@ -3700,10 +4802,11 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
 
   // Integrations page
   if (activePage === 'integrations') {
+    const pageHasMessages = (pageMessages['integrations'] || []).length > 0;
     return (
       <div className="h-screen flex bg-slate-50 overflow-hidden">
-        <Sidebar activeTool={activePage} onToolChange={setActivePage} />
-        
+        <Sidebar activeTool={activePage} onToolChange={handlePageChange} />
+
         {/* Left: Filters */}
         <div className="ml-[64px]">
           <FiltersPanel page="integrations" />
@@ -3713,9 +4816,19 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
         <div className="flex-1 flex flex-col h-screen overflow-hidden bg-white border-l border-r border-slate-200">
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto bg-white">
-            <Suspense fallback={<PageLoader />}>
-              <IntegrationsPage />
-            </Suspense>
+            {pageHasMessages ? (
+              <ConversationFeed
+                messages={messages}
+                onTemplateClick={handleCommandSubmit}
+                onContentEdit={handleContentEdit}
+                suggestions={[]}
+                isLoading={isLoading}
+              />
+            ) : (
+              <Suspense fallback={<PageLoader />}>
+                <IntegrationsPage />
+              </Suspense>
+            )}
           </div>
 
           {/* Fixed Command Box at Bottom */}
@@ -3736,7 +4849,7 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
   if (activePage === 'analytics') {
     return (
       <div className="h-screen flex bg-slate-50 overflow-hidden">
-        <Sidebar activeTool={activePage} onToolChange={setActivePage} />
+        <Sidebar activeTool={activePage} onToolChange={handlePageChange} />
         {/* Analytics page has its own left/center/right layout */}
         <div className="ml-[64px] flex-1">
           <Suspense fallback={<PageLoader />}>
@@ -3751,7 +4864,7 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
   if (activePage === 'settings') {
     return (
       <div className="h-screen flex bg-slate-50 overflow-hidden">
-        <Sidebar activeTool={activePage} onToolChange={setActivePage} />
+        <Sidebar activeTool={activePage} onToolChange={handlePageChange} />
         
         {/* Left: Filters */}
         <div className="ml-[64px]">

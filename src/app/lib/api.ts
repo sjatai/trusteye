@@ -381,6 +381,82 @@ export const automationsApi = {
 };
 
 // ============================================
+// CONTENT LIBRARY API
+// ============================================
+
+export interface ContentLibraryItem {
+  id: string;
+  name: string;
+  type: 'template' | 'asset' | 'banner';
+  channels: string[];
+  campaignTypes: string[];
+  content: {
+    subject?: string;
+    body?: string;
+    cta?: string;
+    post?: string;
+    hashtags?: string[];
+    message?: string;
+  };
+  brandScore: number;
+  performance: {
+    timesUsed: number;
+    avgOpenRate: number;
+    avgClickRate: number;
+    bestPerformingIn: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const contentApi = {
+  // List all content
+  list: async (params?: { channel?: string; campaignType?: string; type?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.channel) query.set('channel', params.channel);
+    if (params?.campaignType) query.set('campaignType', params.campaignType);
+    if (params?.type) query.set('type', params.type);
+
+    return apiCall<ContentLibraryItem[]>(`/api/content?${query.toString()}`);
+  },
+
+  // Get single content item
+  get: async (id: string) => {
+    return apiCall<ContentLibraryItem>(`/api/content/${id}`);
+  },
+
+  // Create content (save to library)
+  create: async (data: {
+    name: string;
+    type: 'template' | 'asset' | 'banner';
+    channels: string[];
+    campaignTypes?: string[];
+    content: Record<string, any>;
+    brandScore?: number;
+  }) => {
+    return apiCall<ContentLibraryItem>('/api/content', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Update content
+  update: async (id: string, data: Partial<ContentLibraryItem>) => {
+    return apiCall<ContentLibraryItem>(`/api/content/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Delete content
+  delete: async (id: string) => {
+    return apiCall<null>(`/api/content/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+// ============================================
 // ANALYTICS API
 // ============================================
 

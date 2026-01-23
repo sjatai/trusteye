@@ -8,12 +8,14 @@
 
 ## Pre-Demo Checklist
 
-- [ ] Backend running: `http://localhost:3009/health` returns OK
+- [x] Backend running: `http://localhost:3009/health` returns OK *(Verified Jan 23)*
+- [x] AI endpoints returning dynamic content *(Verified Jan 23)*
+- [x] 3-gate approval flow working *(Verified Jan 23)*
 - [ ] Frontend running: `http://localhost:5173`
 - [ ] Demo site running: `http://localhost:3001`
 - [ ] Slack open (for approval notification)
 - [ ] Phone ready (show real email)
-- [ ] Resend API key valid (test email works)
+- [x] Resend API key valid (test email works) *(Verified Jan 23)*
 
 ---
 
@@ -488,6 +490,23 @@ Create new template for New Nissan car launch for Instagram
 | **Social Template Generation (optional)** 🆕 | 0:45 | 10:45 |
 
 **Target: 5:30-6:00** (10:45 with all optional demos including social templates)
+
+---
+
+## API Test Results (Verified Jan 23, 2026)
+
+| Endpoint | Status | Notes |
+|----------|--------|-------|
+| `GET /health` | ✅ Working | Returns `{"status":"ok"}` |
+| `GET /api/ai/suggestions` | ✅ Working | Returns 4 real suggestions (recovery, win-back, seasonal, competitive) |
+| `GET /api/ai/feedback/what-changed/:type` | ✅ Working | Returns campaign-specific adjustments (91% confidence) |
+| `POST /api/ai/chat` | ✅ Working | RAG-powered responses about TrustEye capabilities |
+| `POST /api/ai/content/generate` | ✅ Working | Real AI-generated content with brand scores (e.g., 89%) |
+| `POST /api/campaigns` | ✅ Working | Creates campaigns in Supabase |
+| `POST /api/campaigns/:id/review` | ✅ Working | 3-gate flow: Gate 1 (Rules), Gate 2 (AI - 94% brand score), Gate 3 (Human awaiting) |
+| `POST /api/campaigns/test-email` | ✅ Working | Email sent to sumitjain@gmail.com |
+
+**Key Verification:** AI endpoints return **dynamic content**, not static. Tested with unique queries and received unique, contextual responses.
 
 ---
 

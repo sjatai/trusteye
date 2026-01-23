@@ -98,19 +98,58 @@ export function ReviewLaunchDrawer({ isOpen, onClose, campaign, onSubmitReview, 
       }
 
       if (campaignId) {
-        // Simulate gate progression
+        // Show processing state for Gate 1
         setGates(prev => prev.map(g => g.gate === 1 ? { ...g, status: 'processing' } : g));
-        await new Promise(r => setTimeout(r, 800));
-        setGates(prev => prev.map(g => g.gate === 1 ? { ...g, status: 'passed', details: { checks: ['Has name', 'Has channels', 'Has content'] } } : g));
 
-        setGates(prev => prev.map(g => g.gate === 2 ? { ...g, status: 'processing' } : g));
-        await new Promise(r => setTimeout(r, 1000));
-        setGates(prev => prev.map(g => g.gate === 2 ? { ...g, status: 'passed', details: { brandScore: campaign.brandScore || 85 } } : g));
-
-        // Submit for review
+        // Submit for actual review - this runs real guardrails
         const reviewResponse = await campaignsApi.review(campaignId);
 
-        if (reviewResponse.success) {
+        if (reviewResponse.success && reviewResponse.data?.gates) {
+          const gateResults = reviewResponse.data.gates;
+          const gate1Result = gateResults.find((g: any) => g.gate === 1);
+          const gate2Result = gateResults.find((g: any) => g.gate === 2);
+
+          // Update Gate 1 with ACTUAL results
+          if (gate1Result) {
+            const blockers = gate1Result.details?.guardrailBlockers || [];
+            const errors = gate1Result.details?.errors || [];
+            const allIssues = [...blockers, ...errors.filter((e: string) => !blockers.some((b: string) => e.includes(b)))];
+
+            setGates(prev => prev.map(g => g.gate === 1 ? {
+              ...g,
+              status: gate1Result.passed ? 'passed' : 'failed',
+              details: {
+                checks: allIssues, // Array of issues for UI to display
+                error: allIssues.length > 0 ? `Found ${allIssues.length} content violation(s)` : undefined
+              }
+            } : g));
+
+            // If Gate 1 failed, don't proceed
+            if (!gate1Result.passed) {
+              console.error('Gate 1 failed:', allIssues);
+              return;
+            }
+          }
+
+          // Update Gate 2 with ACTUAL results
+          await new Promise(r => setTimeout(r, 500)); // Brief delay for visual feedback
+          setGates(prev => prev.map(g => g.gate === 2 ? { ...g, status: 'processing' } : g));
+          await new Promise(r => setTimeout(r, 500));
+
+          if (gate2Result) {
+            setGates(prev => prev.map(g => g.gate === 2 ? {
+              ...g,
+              status: gate2Result.passed ? 'passed' : 'failed',
+              details: { brandScore: gate2Result.details?.brandScore || 85 }
+            } : g));
+
+            // If Gate 2 failed, don't proceed
+            if (!gate2Result.passed) {
+              return;
+            }
+          }
+
+          // Both gates passed - proceed to Gate 3
           setGates(prev => prev.map(g => g.gate === 3 ? { ...g, status: 'processing' } : g));
           onSubmitReview?.(campaignId);
         }

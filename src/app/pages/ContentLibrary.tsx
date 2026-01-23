@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Filter, Plus, ChevronDown, X, FileText, Layout, Palette, Mail, Smartphone, Share2 } from 'lucide-react';
+import { Search, Filter, Plus, ChevronDown, X, FileText, Layout, Palette, Mail, Smartphone, Share2, Loader2 } from 'lucide-react';
 import { ContentCard } from '../components/ContentCard';
 import { ContentRow } from '../components/ContentRow';
 import { ChannelBadge } from '../components/ChannelBadge';
 import { BrandToneSection } from '../components/BrandToneSection';
 import { contentLibrary, searchContent } from '../data/contentLibrary';
 import { defaultBrandTone } from '../data/brandTone';
+import { contentApi } from '../lib/api';
 import type { ContentItem, ContentChannel, CampaignType, BrandTone } from '../types/content';
 import { CHANNEL_CONFIG, CAMPAIGN_TYPE_CONFIG } from '../types/content';
 
@@ -24,8 +25,72 @@ export function ContentLibraryPage({
   brandTone: externalBrandTone,
   onBrandToneUpdate,
 }: ContentLibraryPageProps) {
-  // Use provided contentItems or default to static contentLibrary
-  const contentSource = contentItems || contentLibrary;
+  // State for API-loaded content
+  const [apiContent, setApiContent] = useState<ContentItem[]>([]);
+  const [isLoadingApi, setIsLoadingApi] = useState(true);
+
+  // Fetch content from API on mount
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        setIsLoadingApi(true);
+        const response = await contentApi.list();
+        if (response.success && response.data) {
+          // Transform API data to ContentItem format
+          const transformed: ContentItem[] = response.data.map(item => ({
+            id: item.id,
+            name: item.name,
+            type: item.type as 'template' | 'asset' | 'banner',
+            channels: item.channels as ContentChannel[],
+            campaignTypes: item.campaignTypes as CampaignType[],
+            content: {
+              subject: item.content.subject || '',
+              body: item.content.body || item.content.post || item.content.message || '',
+              cta: item.content.cta || 'Learn More',
+            },
+            brandScore: item.brandScore,
+            performance: {
+              timesUsed: item.performance?.timesUsed || 0,
+              avgOpenRate: item.performance?.avgOpenRate || 0,
+              avgClickRate: item.performance?.avgClickRate || 0,
+              bestPerformingIn: item.performance?.bestPerformingIn || 'promotional',
+              isMock: false,
+            },
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+          }));
+          setApiContent(transformed);
+        }
+      } catch (error) {
+        console.error('Failed to fetch content from API:', error);
+      } finally {
+        setIsLoadingApi(false);
+      }
+    };
+    fetchContent();
+  }, []);
+
+  // Merge API content with provided contentItems and static library
+  // Priority: API content (newest) > provided items > static library
+  const contentSource = useMemo(() => {
+    const combined = [...apiContent];
+    // Add provided items that aren't already in API content
+    if (contentItems) {
+      contentItems.forEach(item => {
+        if (!combined.find(c => c.id === item.id)) {
+          combined.push(item);
+        }
+      });
+    }
+    // Add static library items that aren't already present
+    contentLibrary.forEach(item => {
+      if (!combined.find(c => c.id === item.id)) {
+        combined.push(item);
+      }
+    });
+    return combined;
+  }, [apiContent, contentItems]);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChannel, setSelectedChannel] = useState<ContentChannel | 'all'>('all');
   const [selectedCampaignType, setSelectedCampaignType] = useState<CampaignType | 'all'>('all');

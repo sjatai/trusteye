@@ -167,13 +167,17 @@ export function GateVisualization({ gates, className = '', compact = false }: Ga
                   {/* Gate-specific details */}
                   {gate.details && (
                     <div className="mt-2">
-                      {/* Gate 1: Checks */}
+                      {/* Gate 1: Checks - show red X for failures, green check for passes */}
                       {gateNum === 1 && gate.details.checks && (
                         <div className="space-y-1">
                           {gate.details.checks.map((check, idx) => (
                             <div key={idx} className="flex items-center gap-2 text-[10px]">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                              <span className="text-slate-600">{check}</span>
+                              {gate.status === 'failed' ? (
+                                <XCircle className="w-3 h-3 text-red-500" />
+                              ) : (
+                                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                              )}
+                              <span className={gate.status === 'failed' ? 'text-red-700 font-medium' : 'text-slate-600'}>{check}</span>
                             </div>
                           ))}
                         </div>

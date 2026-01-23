@@ -25,8 +25,9 @@
  * - anyGateFailed does NOT count gate3 as failed if it's just awaiting approval
  */
 
-import { X, Send, CheckCircle, Users, Mail, Calendar, CheckCircle2, AlertCircle, ShieldCheck, Brain, User, Star, TrendingUp, XCircle, Clock, Sparkles, Loader2, Edit3 } from 'lucide-react';
+import { X, Send, CheckCircle, Users, Mail, Calendar, CheckCircle2, AlertCircle, ShieldCheck, Brain, User, Star, TrendingUp, XCircle, Clock, Sparkles, Loader2, Edit3, Save, PlusCircle, Instagram, MessageSquare, Mail as MailIcon } from 'lucide-react';
 import { useState, memo } from 'react';
+import { InstagramPreview } from './previews/InstagramPreview';
 
 interface InspectorPanelProps {
   type?: 'campaign' | 'segment' | 'content' | 'empty';
@@ -38,6 +39,10 @@ interface InspectorPanelProps {
   onEditContent?: () => void;
   onPublish?: () => Promise<void>;
   onStartNew?: () => void;
+  onSaveToLibrary?: () => void;
+  onCreateCampaign?: () => void;
+  onContentUpdate?: (content: any) => void;
+  onRegenerateImage?: () => void;
   workflowState?: {
     audience?: string;
     messaging?: string;
@@ -48,10 +53,13 @@ interface InspectorPanelProps {
   };
 }
 
-export const InspectorPanel = memo(function InspectorPanel({ type = 'empty', data, onClose, onSubmitReview, onApprove, onReject, onEditContent, onPublish, onStartNew, workflowState }: InspectorPanelProps) {
+export const InspectorPanel = memo(function InspectorPanel({ type = 'empty', data, onClose, onSubmitReview, onApprove, onReject, onEditContent, onPublish, onStartNew, onSaveToLibrary, onCreateCampaign, onContentUpdate, onRegenerateImage, workflowState }: InspectorPanelProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState<any>(null);
+  const [isRegeneratingImage, setIsRegeneratingImage] = useState(false);
 
   const handlePublish = async () => {
     if (!onPublish) return;
@@ -610,35 +618,204 @@ export const InspectorPanel = memo(function InspectorPanel({ type = 'empty', dat
             </div>
           </div>
 
-          {/* Email Preview */}
+          {/* Content Preview with Edit */}
           {data?.content && (
             <div className="p-4 rounded-xl border border-slate-200 space-y-3">
-              <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
-                Content Preview
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+                  Content Preview
+                </div>
+                {!isEditing && (
+                  <button
+                    onClick={() => {
+                      setIsEditing(true);
+                      setEditedContent(data.content);
+                    }}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium text-indigo-600 hover:bg-indigo-50 transition-colors"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    Edit
+                  </button>
+                )}
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50">
-                <p className="text-[11px] text-slate-500 mb-1">Subject:</p>
-                <p className="text-[13px] font-medium text-slate-900">
-                  {data.content.subject}
-                </p>
-              </div>
+              {/* Instagram/Social Preview */}
+              {(data.content.hashtags || data.content.imageUrl) && (
+                <div className="space-y-2">
+                  {data.content.imageUrl && (
+                    <div className="relative">
+                      <img
+                        src={data.content.imageUrl}
+                        alt="Post"
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      {isEditing && onRegenerateImage && (
+                        <button
+                          onClick={async () => {
+                            setIsRegeneratingImage(true);
+                            await onRegenerateImage();
+                            setIsRegeneratingImage(false);
+                          }}
+                          disabled={isRegeneratingImage}
+                          className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-1 rounded-lg bg-white/90 text-[10px] font-medium text-slate-700 hover:bg-white transition-colors"
+                        >
+                          {isRegeneratingImage ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-3 h-3" />
+                          )}
+                          {isRegeneratingImage ? 'Generating...' : 'New Image'}
+                        </button>
+                      )}
+                    </div>
+                  )}
 
-              {data.content.body && (
-                <div className="p-3 rounded-lg bg-slate-50">
-                  <p className="text-[11px] text-slate-500 mb-1">Body:</p>
-                  <p className="text-[12px] text-slate-700 whitespace-pre-line line-clamp-4">
-                    {data.content.body}
-                  </p>
+                  {isEditing ? (
+                    <textarea
+                      value={editedContent?.body || ''}
+                      onChange={(e) => setEditedContent({ ...editedContent, body: e.target.value })}
+                      className="w-full p-2 text-[12px] border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      rows={3}
+                      placeholder="Post text..."
+                    />
+                  ) : (
+                    <p className="text-[12px] text-slate-700">{data.content.body}</p>
+                  )}
+
+                  {data.content.hashtags && (
+                    <p className="text-[11px] text-sky-600">
+                      {data.content.hashtags.map((h: string) => `#${h}`).join(' ')}
+                    </p>
+                  )}
                 </div>
               )}
 
-              {data.content.cta && (
-                <div className="p-3 rounded-lg bg-indigo-50 border border-indigo-200">
-                  <p className="text-[11px] text-indigo-500 mb-1">Call to Action:</p>
-                  <p className="text-[12px] font-semibold text-indigo-700">
-                    {data.content.cta}
-                  </p>
+              {/* Email Preview */}
+              {data.content.subject && !data.content.hashtags && (
+                <>
+                  <div className="p-3 rounded-lg bg-slate-50">
+                    <p className="text-[11px] text-slate-500 mb-1">Subject:</p>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editedContent?.subject || ''}
+                        onChange={(e) => setEditedContent({ ...editedContent, subject: e.target.value })}
+                        className="w-full p-1 text-[13px] font-medium border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    ) : (
+                      <p className="text-[13px] font-medium text-slate-900">
+                        {data.content.subject}
+                      </p>
+                    )}
+                  </div>
+
+                  {data.content.body && (
+                    <div className="p-3 rounded-lg bg-slate-50">
+                      <p className="text-[11px] text-slate-500 mb-1">Body:</p>
+                      {isEditing ? (
+                        <textarea
+                          value={editedContent?.body || ''}
+                          onChange={(e) => setEditedContent({ ...editedContent, body: e.target.value })}
+                          className="w-full p-1 text-[12px] border border-slate-200 rounded resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          rows={4}
+                        />
+                      ) : (
+                        <p className="text-[12px] text-slate-700 whitespace-pre-line line-clamp-4">
+                          {data.content.body}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {data.content.cta && (
+                    <div className="p-3 rounded-lg bg-indigo-50 border border-indigo-200">
+                      <p className="text-[11px] text-indigo-500 mb-1">Call to Action:</p>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editedContent?.cta || ''}
+                          onChange={(e) => setEditedContent({ ...editedContent, cta: e.target.value })}
+                          className="w-full p-1 text-[12px] font-semibold border border-indigo-200 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      ) : (
+                        <p className="text-[12px] font-semibold text-indigo-700">
+                          {data.content.cta}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Website Banner Preview */}
+              {(data.channel?.toLowerCase().includes('website') || data.channels?.includes('website')) && (
+                <div className="space-y-2">
+                  <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wide flex items-center gap-2">
+                    <span className="w-4 h-4 rounded bg-blue-100 flex items-center justify-center text-[10px]">🌐</span>
+                    Website Banner Preview
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-900 to-blue-800 text-white rounded-xl overflow-hidden shadow-lg">
+                    <div className="p-4">
+                      <div className="text-[10px] text-blue-300 uppercase tracking-wide mb-1">Special Offer</div>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editedContent?.subject || editedContent?.headline || ''}
+                          onChange={(e) => setEditedContent({ ...editedContent, subject: e.target.value, headline: e.target.value })}
+                          className="w-full p-1 text-[14px] font-bold bg-white/10 border border-white/20 rounded text-white placeholder-white/50"
+                          placeholder="Headline..."
+                        />
+                      ) : (
+                        <h3 className="text-[14px] font-bold mb-2">
+                          {data.content.subject || data.content.headline || 'New Promotion'}
+                        </h3>
+                      )}
+                      {isEditing ? (
+                        <textarea
+                          value={editedContent?.body || ''}
+                          onChange={(e) => setEditedContent({ ...editedContent, body: e.target.value })}
+                          className="w-full p-1 text-[11px] bg-white/10 border border-white/20 rounded text-blue-100 placeholder-white/50 resize-none"
+                          rows={2}
+                          placeholder="Banner text..."
+                        />
+                      ) : (
+                        <p className="text-[11px] text-blue-100 mb-3">
+                          {data.content.body?.substring(0, 80) || 'Check out our latest offers!'}
+                        </p>
+                      )}
+                      <div className="bg-red-600 hover:bg-red-700 text-white text-center py-1.5 rounded text-[11px] font-semibold">
+                        {data.content.cta || 'Learn More'}
+                      </div>
+                    </div>
+                    <div className="bg-black/20 px-3 py-1 text-[9px] text-blue-300 text-center">
+                      Premier Nissan • Website Banner
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Edit Actions */}
+              {isEditing && (
+                <div className="flex gap-2 pt-2">
+                  <button
+                    onClick={() => {
+                      onContentUpdate?.(editedContent);
+                      setIsEditing(false);
+                    }}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-emerald-500 text-white text-[11px] font-semibold hover:bg-emerald-600 transition-colors"
+                  >
+                    <Save className="w-3 h-3" />
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditedContent(null);
+                    }}
+                    className="px-3 py-2 rounded-lg bg-slate-100 text-slate-600 text-[11px] font-semibold hover:bg-slate-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
               )}
             </div>
@@ -792,11 +969,15 @@ export const InspectorPanel = memo(function InspectorPanel({ type = 'empty', dat
             }
 
             // Default - show submit for review
+            const missingContent = !data?.content;
+            const missingAudience = !data?.audienceDescription && !data?.audienceId && !data?.audienceName;
+            const canSubmit = !missingContent && !missingAudience;
+
             return (
               <>
                 <button
                   onClick={handleSubmitReview}
-                  disabled={isSubmitting || !data?.content}
+                  disabled={isSubmitting || !canSubmit}
                   className="w-full px-4 py-3 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white text-[13px] font-semibold hover:shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
@@ -811,7 +992,12 @@ export const InspectorPanel = memo(function InspectorPanel({ type = 'empty', dat
                     </>
                   )}
                 </button>
-                {!data?.content && (
+                {missingAudience && (
+                  <p className="text-[11px] text-amber-600 text-center">
+                    Select an audience first (type "target 5-star reviewers")
+                  </p>
+                )}
+                {!missingAudience && missingContent && (
                   <p className="text-[11px] text-amber-600 text-center">
                     Generate content first before submitting for review
                   </p>
@@ -886,6 +1072,133 @@ export const InspectorPanel = memo(function InspectorPanel({ type = 'empty', dat
           <button className="w-full px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-700 text-[12px] font-semibold hover:bg-slate-50 transition-all">
             Edit Criteria
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // CONTENT PREVIEW - Instagram/Social/Email
+  if (type === 'content') {
+    const content = data?.content || data;
+    const hasInstagram = content?.social?.post || content?.social;
+    const hasEmail = content?.email?.subject || content?.email;
+    const hasSms = content?.sms?.message || content?.sms;
+    const brandScore = content?.brandScore || data?.brandScore || 85;
+    const channel = hasInstagram ? 'instagram' : hasEmail ? 'email' : hasSms ? 'sms' : 'content';
+
+    return (
+      <div className="w-[360px] bg-white border-l border-slate-200 h-screen flex flex-col overflow-y-auto">
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-2">
+            {hasInstagram ? (
+              <Instagram className="w-4 h-4 text-pink-600" />
+            ) : hasEmail ? (
+              <MailIcon className="w-4 h-4 text-sky-600" />
+            ) : (
+              <MessageSquare className="w-4 h-4 text-emerald-600" />
+            )}
+            <h3 className="text-[15px] font-semibold text-slate-900">
+              {hasInstagram ? 'Instagram Post' : hasEmail ? 'Email Preview' : hasSms ? 'SMS Preview' : 'Content Preview'}
+            </h3>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Content Preview */}
+        <div className="flex-1 p-5 space-y-4">
+          {/* Brand Score Badge */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200">
+            <div className="flex items-center gap-2">
+              <Star className="w-4 h-4 text-emerald-600" />
+              <span className="text-[12px] font-bold text-emerald-900">Brand Score</span>
+            </div>
+            <span className="text-[18px] font-bold text-emerald-600">{brandScore}%</span>
+          </div>
+
+          {/* Instagram Preview */}
+          {hasInstagram && (
+            <div className="flex justify-center py-4">
+              <InstagramPreview
+                content={{
+                  body: content.social?.post || content.social || '',
+                  hashtags: content.social?.hashtags || [],
+                  imageUrl: content.social?.imageUrl || content.imageUrl,
+                }}
+                brandScore={brandScore}
+              />
+            </div>
+          )}
+
+          {/* Email Preview */}
+          {hasEmail && !hasInstagram && (
+            <div className="p-4 rounded-xl border border-slate-200 space-y-3">
+              <div className="p-3 rounded-lg bg-slate-50">
+                <p className="text-[11px] text-slate-500 mb-1">Subject:</p>
+                <p className="text-[13px] font-semibold text-slate-900">
+                  {content.email?.subject || content.email}
+                </p>
+              </div>
+              {content.email?.body && (
+                <div className="p-3 rounded-lg bg-slate-50">
+                  <p className="text-[11px] text-slate-500 mb-1">Body:</p>
+                  <p className="text-[12px] text-slate-700 whitespace-pre-line line-clamp-6">
+                    {content.email.body}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SMS Preview */}
+          {hasSms && !hasInstagram && !hasEmail && (
+            <div className="p-4 rounded-xl border border-slate-200">
+              <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                <p className="text-[11px] text-emerald-600 mb-1">
+                  SMS ({(content.sms?.message || content.sms || '').length}/160 chars)
+                </p>
+                <p className="text-[13px] text-emerald-900">
+                  {content.sms?.message || content.sms}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Next Actions Hint */}
+          <div className="p-3 rounded-lg bg-sky-50 border border-sky-200">
+            <p className="text-[11px] text-sky-700 leading-relaxed">
+              💡 Save this content to your library for reuse, or create a campaign to send it now.
+            </p>
+          </div>
+        </div>
+
+        {/* Actions Footer */}
+        <div className="mt-auto border-t border-slate-200 p-4 bg-white space-y-2 sticky bottom-0">
+          {onSaveToLibrary && (
+            <button
+              onClick={onSaveToLibrary}
+              className="w-full px-4 py-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-[13px] font-semibold hover:shadow-md transition-all flex items-center justify-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              Save to Library
+            </button>
+          )}
+          {onCreateCampaign && (
+            <button
+              onClick={onCreateCampaign}
+              className="w-full px-4 py-2 rounded-lg bg-white border border-indigo-300 text-indigo-700 text-[12px] font-semibold hover:bg-indigo-50 transition-all flex items-center justify-center gap-2"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Create Campaign
+            </button>
+          )}
         </div>
       </div>
     );

@@ -172,7 +172,7 @@ function WorkflowBlock({
 }
 
 // Available channels (what's configured in integrations)
-const AVAILABLE_CHANNELS = ['email', 'slack', 'sms'];
+const AVAILABLE_CHANNELS = ['email', 'slack', 'sms', 'website'];
 
 // Campaign type options
 const CAMPAIGN_TYPES = [
@@ -274,7 +274,8 @@ export function WorkflowBlocks({ state = {}, onStateChange, onNavigate }: Workfl
     if (value.includes('Email')) channels.push('email');
     if (value.includes('SMS')) channels.push('sms');
     if (value.includes('Push')) channels.push('push');
-    if (value.includes('All')) channels = ['email', 'sms', 'push'];
+    if (value.includes('Website')) channels.push('website');
+    if (value.includes('All')) channels = ['email', 'sms', 'push', 'website'];
 
     onStateChange?.({ channel: value, channels });
   };
@@ -288,7 +289,9 @@ export function WorkflowBlocks({ state = {}, onStateChange, onNavigate }: Workfl
     'Email Only',
     'SMS Only',
     'Slack Notification',
+    'Website Banner',
     'Email + SMS',
+    'Email + Website',
     'Email + Slack',
     'Multi-channel (All)'
   ];

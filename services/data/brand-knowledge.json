@@ -2014,5 +2014,868 @@
         "lastUpdated": "2026-01-22T22:50:01.786Z"
       }
     }
+  ],
+  [
+    "seed-audience-5-star",
+    {
+      "id": "seed-audience-5-star",
+      "content": "5-Star Reviewers: Customers who left 5-star reviews. Great for referral campaigns.",
+      "metadata": {
+        "filename": "5-Star Reviewers",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "audience",
+        "name": "5-Star Reviewers",
+        "assetType": "audience",
+        "criteria": "{\"rating\":5}",
+        "tags": [
+          "reviews",
+          "loyalty",
+          "referral"
+        ]
+      }
+    }
+  ],
+  [
+    "seed-audience-lapsed",
+    {
+      "id": "seed-audience-lapsed",
+      "content": "Lapsed Customers: Customers who haven't visited in 90 days. Target for win-back campaigns.",
+      "metadata": {
+        "filename": "Lapsed Customers",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "audience",
+        "name": "Lapsed Customers",
+        "assetType": "audience",
+        "criteria": "{\"daysSinceVisit\":{\"$gte\":90}}",
+        "tags": [
+          "winback",
+          "churn",
+          "inactive"
+        ]
+      }
+    }
+  ],
+  [
+    "seed-audience-negative",
+    {
+      "id": "seed-audience-negative",
+      "content": "Negative Reviewers: Customers who left 1-2 star reviews. Priority for recovery outreach.",
+      "metadata": {
+        "filename": "Negative Reviewers",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "audience",
+        "name": "Negative Reviewers",
+        "assetType": "audience",
+        "criteria": "{\"rating\":{\"$lte\":2}}",
+        "tags": [
+          "recovery",
+          "service",
+          "unhappy"
+        ]
+      }
+    }
+  ],
+  [
+    "seed-content-referral",
+    {
+      "id": "seed-content-referral",
+      "content": "Referral Email: Thank customers for 5-star reviews and ask them to refer friends.",
+      "metadata": {
+        "filename": "Referral Email Template",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "content",
+        "name": "Referral Email",
+        "assetType": "content",
+        "template": "Thanks for your amazing review! Share your experience with friends and family.",
+        "tags": [
+          "referral",
+          "email",
+          "reviews"
+        ]
+      }
+    }
+  ],
+  [
+    "seed-content-winback",
+    {
+      "id": "seed-content-winback",
+      "content": "Win-back Email: Re-engage inactive customers with a special offer.",
+      "metadata": {
+        "filename": "Win-back Email Template",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "content",
+        "name": "Win-back Email",
+        "assetType": "content",
+        "template": "We miss you! It's been a while since your last visit. Here's a special offer.",
+        "tags": [
+          "winback",
+          "email",
+          "offer"
+        ]
+      }
+    }
+  ],
+  [
+    "seed-content-recovery",
+    {
+      "id": "seed-content-recovery",
+      "content": "Recovery Email: Apologize to unhappy customers and offer to make things right.",
+      "metadata": {
+        "filename": "Recovery Email Template",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "content",
+        "name": "Recovery Email",
+        "assetType": "content",
+        "template": "We're sorry to hear about your experience. Let us make it right.",
+        "tags": [
+          "recovery",
+          "email",
+          "apology"
+        ]
+      }
+    }
+  ],
+  [
+    "seed-campaign-referral",
+    {
+      "id": "seed-campaign-referral",
+      "content": "Referral Campaign: Target 5-star reviewers with referral requests. Full workflow with 3-gate approval.",
+      "metadata": {
+        "filename": "Referral Campaign",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "campaign",
+        "name": "Referral Campaign",
+        "assetType": "campaign",
+        "workflow": "[\"find 5-star reviewers\",\"generate referral email\",\"3-gate approval\",\"send\"]",
+        "tags": [
+          "referral",
+          "automated",
+          "reviews"
+        ]
+      }
+    }
+  ],
+  [
+    "seed-campaign-recovery",
+    {
+      "id": "seed-campaign-recovery",
+      "content": "Recovery Campaign: Reach out to negative reviewers with apology and offer to make things right.",
+      "metadata": {
+        "filename": "Recovery Campaign",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "campaign",
+        "name": "Recovery Campaign",
+        "assetType": "campaign",
+        "workflow": "[\"find negative reviews\",\"generate apology\",\"3-gate approval\",\"send\"]",
+        "tags": [
+          "recovery",
+          "service"
+        ]
+      }
+    }
+  ],
+  [
+    "seed-campaign-conquest",
+    {
+      "id": "seed-campaign-conquest",
+      "content": "Conquest Campaign: Target competitor's unhappy customers with our superior service pitch.",
+      "metadata": {
+        "filename": "Conquest Campaign",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "campaign",
+        "name": "Conquest Campaign",
+        "assetType": "campaign",
+        "workflow": "[\"analyze competitor reviews\",\"identify pain points\",\"generate competitive offer\",\"3-gate approval\",\"send\"]",
+        "tags": [
+          "conquest",
+          "competitor",
+          "acquisition"
+        ]
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:summary",
+    {
+      "id": "trusteye-system:tools:summary",
+      "content": "# TrustEye Available Tools\n\nTrustEye has 16 tools available:\n\n- **Trigger Loyalty Campaign** (demo-site): Show loyalty campaign banner on Premier Nissan website\n- **Update Display Ad** (demo-site): Change display ad content on Premier Nissan website\n- **Push Site Notification** (demo-site): Show notification toast to website visitors\n- **Send Email Campaign** (email): Send email to audience segment via Resend\n- **Send Single Email** (email): Send email to one recipient\n- **Send Slack Notification** (slack): Post message to Slack channel\n- **Request Slack Approval** (slack): Send approval request to Slack with approve/reject buttons\n- **Send SMS Campaign** (sms): Send SMS to audience via Birdeye\n- **Post to Social Media** (social): Post content to social media via Late.dev\n- **Get Audience Segment** (internal): Retrieve audience segment details\n- **Create Audience Segment** (internal): Create a new audience segment\n- **Get Birdeye Reviews** (internal): Fetch reviews from Birdeye\n- **Analyze Reviews** (internal): AI analysis of review sentiment and themes\n- **Get Competitor Insights** (internal): Fetch competitor data from Birdeye\n- **Create Campaign** (internal): Create a new marketing campaign\n- **Generate Marketing Content** (internal): AI-generate marketing content with brand voice\n\nTools requiring approval: Trigger Loyalty Campaign, Update Display Ad, Send Email Campaign, Send SMS Campaign, Post to Social Media, Create Campaign",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Available Tools"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:demo_site_loyalty",
+    {
+      "id": "trusteye-system:tools:demo_site_loyalty",
+      "content": "## Trigger Loyalty Campaign\n\n**Category:** demo-site\n**Description:** Show loyalty campaign banner on Premier Nissan website\n**Requires Approval:** Yes\n\n**Parameters:**\n- message (string, required): Banner message\n- offer_code (string): Promo code\n- cta_text (string): Button text\n- cta_url (string): Button link\n- duration_hours (number): How long to show\n\n**Example phrases:**\n- \"show loyalty banner on website\"\n- \"trigger loyalty campaign on site\"\n- \"display loyalty offer on demo site\"\n- \"launch loyalty popup\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Trigger Loyalty Campaign"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:demo_site_display_ad",
+    {
+      "id": "trusteye-system:tools:demo_site_display_ad",
+      "content": "## Update Display Ad\n\n**Category:** demo-site\n**Description:** Change display ad content on Premier Nissan website\n**Requires Approval:** Yes\n\n**Parameters:**\n- headline (string, required): Ad headline\n- body (string): Ad body text\n- image_url (string): Ad image\n- cta_text (string, required): Button text\n- cta_url (string, required): Button link\n\n**Example phrases:**\n- \"update display ad on website\"\n- \"change the ad on site\"\n- \"set new display ad\"\n- \"modify website advertisement\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Update Display Ad"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:demo_site_notification",
+    {
+      "id": "trusteye-system:tools:demo_site_notification",
+      "content": "## Push Site Notification\n\n**Category:** demo-site\n**Description:** Show notification toast to website visitors\n**Requires Approval:** No\n\n**Parameters:**\n- message (string, required): Notification message\n- type (string, required): info | success | warning | error\n- duration_seconds (number): Auto-dismiss time\n\n**Example phrases:**\n- \"send notification to website\"\n- \"push alert on site\"\n- \"notify website visitors\"\n- \"show toast message\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Push Site Notification"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:send_email_campaign",
+    {
+      "id": "trusteye-system:tools:send_email_campaign",
+      "content": "## Send Email Campaign\n\n**Category:** email\n**Description:** Send email to audience segment via Resend\n**Requires Approval:** Yes\n\n**Parameters:**\n- audience_id (string, required): Target audience\n- subject (string, required): Email subject\n- body (string, required): Email HTML body\n- from_name (string): Sender name\n\n**Example phrases:**\n- \"send email campaign\"\n- \"email the customers\"\n- \"launch email blast\"\n- \"send marketing email\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Send Email Campaign"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:send_single_email",
+    {
+      "id": "trusteye-system:tools:send_single_email",
+      "content": "## Send Single Email\n\n**Category:** email\n**Description:** Send email to one recipient\n**Requires Approval:** No\n\n**Parameters:**\n- to (string, required): Recipient email\n- subject (string, required): Email subject\n- body (string, required): Email HTML body\n\n**Example phrases:**\n- \"send email to\"\n- \"email this person\"\n- \"send a quick email\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Send Single Email"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:send_slack_notification",
+    {
+      "id": "trusteye-system:tools:send_slack_notification",
+      "content": "## Send Slack Notification\n\n**Category:** slack\n**Description:** Post message to Slack channel\n**Requires Approval:** No\n\n**Parameters:**\n- message (string, required): Message text\n- channel (string): Channel name (default: general)\n\n**Example phrases:**\n- \"notify slack\"\n- \"post to slack\"\n- \"send slack message\"\n- \"alert the team on slack\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Send Slack Notification"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:send_slack_approval",
+    {
+      "id": "trusteye-system:tools:send_slack_approval",
+      "content": "## Request Slack Approval\n\n**Category:** slack\n**Description:** Send approval request to Slack with approve/reject buttons\n**Requires Approval:** No\n\n**Parameters:**\n- campaign_id (string, required): Campaign to approve\n- summary (string, required): Campaign summary\n\n**Example phrases:**\n- \"request approval\"\n- \"send for approval\"\n- \"get sign-off\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Request Slack Approval"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:send_sms_campaign",
+    {
+      "id": "trusteye-system:tools:send_sms_campaign",
+      "content": "## Send SMS Campaign\n\n**Category:** sms\n**Description:** Send SMS to audience via Birdeye\n**Requires Approval:** Yes\n\n**Parameters:**\n- audience_id (string, required): Target audience\n- message (string, required): SMS text (max 160 chars)\n\n**Example phrases:**\n- \"send sms campaign\"\n- \"text the customers\"\n- \"send text message blast\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Send SMS Campaign"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:post_social",
+    {
+      "id": "trusteye-system:tools:post_social",
+      "content": "## Post to Social Media\n\n**Category:** social\n**Description:** Post content to social media via Late.dev\n**Requires Approval:** Yes\n\n**Parameters:**\n- platforms (array, required): facebook, instagram, twitter, linkedin\n- content (string, required): Post content\n- image_url (string): Image to attach\n- schedule_at (string): ISO datetime to post\n\n**Example phrases:**\n- \"post to social media\"\n- \"share on facebook\"\n- \"tweet this\"\n- \"post on linkedin\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Post to Social Media"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:get_audience",
+    {
+      "id": "trusteye-system:tools:get_audience",
+      "content": "## Get Audience Segment\n\n**Category:** internal\n**Description:** Retrieve audience segment details\n**Requires Approval:** No\n\n**Parameters:**\n- id (string, required): Audience ID\n\n**Example phrases:**\n- \"get audience\"\n- \"show me the segment\"\n- \"who is in this audience\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Get Audience Segment"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:create_audience",
+    {
+      "id": "trusteye-system:tools:create_audience",
+      "content": "## Create Audience Segment\n\n**Category:** internal\n**Description:** Create a new audience segment\n**Requires Approval:** No\n\n**Parameters:**\n- name (string, required): Segment name\n- description (string): Segment description\n- conditions (object, required): Filter conditions\n\n**Example phrases:**\n- \"create audience\"\n- \"build segment\"\n- \"make a new audience\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Create Audience Segment"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:get_reviews",
+    {
+      "id": "trusteye-system:tools:get_reviews",
+      "content": "## Get Birdeye Reviews\n\n**Category:** internal\n**Description:** Fetch reviews from Birdeye\n**Requires Approval:** No\n\n**Parameters:**\n- count (number): Number of reviews\n- rating (number): Filter by rating\n- location (string): Location filter\n\n**Example phrases:**\n- \"get reviews\"\n- \"show me recent reviews\"\n- \"fetch 5-star reviews\"\n- \"what are customers saying\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Get Birdeye Reviews"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:analyze_reviews",
+    {
+      "id": "trusteye-system:tools:analyze_reviews",
+      "content": "## Analyze Reviews\n\n**Category:** internal\n**Description:** AI analysis of review sentiment and themes\n**Requires Approval:** No\n\n**Parameters:**\n- count (number): Reviews to analyze\n\n**Example phrases:**\n- \"analyze reviews\"\n- \"what are the themes\"\n- \"review sentiment analysis\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Analyze Reviews"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:get_competitors",
+    {
+      "id": "trusteye-system:tools:get_competitors",
+      "content": "## Get Competitor Insights\n\n**Category:** internal\n**Description:** Fetch competitor data from Birdeye\n**Requires Approval:** No\n\n**Parameters:**\n\n\n**Example phrases:**\n- \"competitor analysis\"\n- \"how are competitors doing\"\n- \"show competitor reviews\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Get Competitor Insights"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:create_campaign",
+    {
+      "id": "trusteye-system:tools:create_campaign",
+      "content": "## Create Campaign\n\n**Category:** internal\n**Description:** Create a new marketing campaign\n**Requires Approval:** Yes\n\n**Parameters:**\n- name (string, required): Campaign name\n- type (string, required): Campaign type\n- audience_id (string, required): Target audience\n- channels (array, required): Marketing channels\n- content (object, required): Campaign content\n\n**Example phrases:**\n- \"create campaign\"\n- \"build a campaign\"\n- \"set up marketing campaign\"\n- \"launch campaign\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Create Campaign"
+      }
+    }
+  ],
+  [
+    "trusteye-system:tools:generate_content",
+    {
+      "id": "trusteye-system:tools:generate_content",
+      "content": "## Generate Marketing Content\n\n**Category:** internal\n**Description:** AI-generate marketing content with brand voice\n**Requires Approval:** No\n\n**Parameters:**\n- campaignType (string, required): Type of campaign\n- audience (object, required): Target audience\n- channels (array, required): Output channels\n- goal (string, required): Campaign goal\n\n**Example phrases:**\n- \"generate content\"\n- \"create email copy\"\n- \"write marketing message\"\n- \"draft campaign content\"",
+      "metadata": {
+        "filename": "tools-registry.ts",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Tool: Generate Marketing Content"
+      }
+    }
+  ],
+  [
+    "trusteye-system:workflow:referral",
+    {
+      "id": "trusteye-system:workflow:referral",
+      "content": "# Referral Campaign Workflow\n\n**Trigger:** 5-star reviews from Birdeye\n\n**How to create:** Say \"Create a referral campaign from 5-star reviews\"\n\n**What TrustEye does:**\n1. Identifies customers who left 5-star reviews in the last 24-48 hours\n2. Creates personalized thank-you email in brand voice\n3. Includes referral ask with reciprocal benefit ($100 for both parties)\n4. Sends through 3-gate approval\n\n**Best practices:**\n- Send within 48 hours of the review for best response\n- Focus on gratitude before the ask\n- Offer reciprocal benefit (both referrer and referee get reward)\n\n**Expected performance:**\n- Open rate: 34.2%\n- Best send time: Saturday 10 AM\n\n**Example subject line:** \"Thank you for the amazing review, {{customer_name}}!\"",
+      "metadata": {
+        "filename": "workflows",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Referral Campaign Workflow"
+      }
+    }
+  ],
+  [
+    "trusteye-system:workflow:conquest",
+    {
+      "id": "trusteye-system:workflow:conquest",
+      "content": "# Conquest Campaign Workflow\n\n**Trigger:** Competitor weaknesses identified from competitive analysis\n\n**How to create:** Say \"Create a conquest campaign targeting Valley Honda\" or \"conquest campaign for competitor customers\"\n\n**What TrustEye does:**\n1. Analyzes competitor reviews and identifies their weaknesses\n2. Valley Honda weaknesses: slow service, hidden fees, poor communication\n3. Creates targeted content highlighting Premier Nissan's strengths\n4. Targets customers who may be unhappy with competitors\n\n**Best practices:**\n- Focus on our strengths, not attacking competitors\n- Highlight specific differentiators (transparent pricing, fast service)\n- Use comparison without direct negative mentions\n\n**Expected performance:**\n- Open rate: 24.8%\n- Best for: customers researching alternatives\n\n**Example subject line:** \"Tired of waiting? We respect your time.\"",
+      "metadata": {
+        "filename": "workflows",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Conquest Campaign Workflow"
+      }
+    }
+  ],
+  [
+    "trusteye-system:workflow:recovery",
+    {
+      "id": "trusteye-system:workflow:recovery",
+      "content": "# Recovery Campaign Workflow\n\n**Trigger:** 1-2 star reviews from Birdeye\n\n**How to create:** Say \"Create a recovery campaign for negative reviews\" or \"win back unhappy customers\"\n\n**What TrustEye does:**\n1. Monitors 1-2 star reviews in real-time\n2. Creates immediate personalized recovery outreach\n3. Routes for urgent human approval\n4. Includes appropriate recovery offer\n\n**Best practices:**\n- Respond within 2 hours of negative review\n- Personal outreach from manager increases resolution by 40%\n- 20% discount is optimal for win-back (15% under-performs)\n- Lead with \"we're sorry\" before offering discount\n\n**Expected performance:**\n- Open rate: 31.5%\n- Reactivation rate: 14.2% with 20% discount\n\n**Example subject line:** \"We want to make this right, {{customer_name}}\"",
+      "metadata": {
+        "filename": "workflows",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Recovery Campaign Workflow"
+      }
+    }
+  ],
+  [
+    "trusteye-system:3gate:overview",
+    {
+      "id": "trusteye-system:3gate:overview",
+      "content": "# 3-Gate Approval System\n\nEvery campaign in TrustEye goes through 3 gates before sending. This is the Trust Layer.\n\n## Gate 1: Rules Engine (Automated)\n- **Type:** Deterministic - Binary Pass/Fail\n- **What it checks:**\n  - CAN-SPAM compliance (physical address, unsubscribe link)\n  - GDPR requirements (consent validation)\n  - Required fields (subject, body, audience)\n  - Profanity filter (blocks inappropriate language)\n  - PII detection (no SSN, credit cards, passwords exposed)\n  - Unsubscribe link present\n\n## Gate 2: AI Review (Automated)\n- **Type:** Probabilistic - Scored\n- **What it checks:**\n  - Brand Score (target: 85%+) - measures brand voice alignment\n  - Toxicity Score (target: 0%) - detects harmful content\n  - Copyright Risk (Low/Medium/High) - flags potential issues\n  - Tone Alignment - matches brand personality\n  - Competitor Mentions - flags if mentioning competitors\n\n## Gate 3: Human Approval (Manual)\n- **Type:** Non-delegable - Requires human click\n- **What happens:**\n  - Slack notification sent with campaign summary\n  - Shows Gate 1 and Gate 2 results\n  - Approve or Reject buttons\n  - Records: who approved, when, interaction duration\n  - AI cannot bypass this gate\n\n## Why This Matters\n\"Jasper says 'trust us.' TrustEye says 'here's the proof.'\"\n\nEvery gate generates audit data. When regulators ask \"prove this was compliant\" - you show the receipt.",
+      "metadata": {
+        "filename": "3-gate-system",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "3-Gate Approval System"
+      }
+    }
+  ],
+  [
+    "trusteye-system:feedback:overview",
+    {
+      "id": "trusteye-system:feedback:overview",
+      "content": "# Feedback Loop - \"What Changed Since Last Time\"\n\nTrustEye learns from past campaign performance and shows you exactly what it changed.\n\n## How It Works\nWhen you create a campaign, TrustEye shows adjustments it made based on performance data:\n\n**For Referral Campaigns:**\n- 👥 Excluded customers with unresolved negative reviews\n  Reason: 73% lower conversion rate observed in Q3\n- ⏰ Increased wait time between messages from 2 → 5 days\n  Reason: 45% lower open rates when contacted within 2 days\n- 🎯 Prioritized referral over discount offers\n  Reason: VIP customers respond 2.3x better to referral asks\n\n**For Win-Back Campaigns:**\n- ✍️ Increased discount from 15% to 20%\n  Reason: 15% under-performs by 23% for win-back campaigns\n- ✍️ Lead with \"we miss you\" before discount\n  Reason: Emotional lead outperforms discount-first by 34%\n- 🎯 Added SMS follow-up to email\n  Reason: Email+SMS combo has 52% higher reactivation\n\n## What This Demonstrates\n- **Memory**: System remembers past campaign results\n- **Causality**: Understands WHY things worked or failed\n- **Adaptation**: Automatically adjusts behavior based on learnings\n- **Control**: User sees exactly what changed and why\n\n## Data Sources\n- Q3 Campaign Performance Report\n- Real-time Analytics\n- Historical A/B test results\n\nThis is the key differentiator. The AI isn't just generating content - it's learning and improving.",
+      "metadata": {
+        "filename": "feedback-loop",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Feedback Loop"
+      }
+    }
+  ],
+  [
+    "trusteye-system:faq:What_can_TrustEye_do_",
+    {
+      "id": "trusteye-system:faq:What_can_TrustEye_do_",
+      "content": "## FAQ: What can TrustEye do?\n\nTrustEye can create three types of marketing campaigns from your real Birdeye data:\n\n1. **Referral campaigns** from 5-star reviews - identify happy customers and ask for referrals\n2. **Conquest campaigns** based on competitor weaknesses - target customers unhappy with competitors like Valley Honda\n3. **Recovery campaigns** from negative reviews - immediately reach out to unhappy customers\n\nAll campaigns go through 3-gate approval (Rules, AI, Human) before sending. The system learns from past performance and shows you \"what changed since last time.\"\n\nWant me to create one of these campaigns?",
+      "metadata": {
+        "filename": "faq",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "FAQ: What can TrustEye do?"
+      }
+    }
+  ],
+  [
+    "trusteye-system:faq:How_is_TrustEye_different_from",
+    {
+      "id": "trusteye-system:faq:How_is_TrustEye_different_from",
+      "content": "## FAQ: How is TrustEye different from Jasper?\n\nJasper has what they call a \"Trust Foundation\" - infrastructure underneath their tools. It's a promise.\n\nTrustEye has a \"Trust Layer\" - verification that's visible, auditable, and defensible. It's evidence.\n\n**Jasper says \"trust us.\" TrustEye says \"here's the proof.\"**\n\nEvery campaign in TrustEye generates a compliance receipt with:\n- What rules were checked\n- AI review scores\n- Who approved it and when\n- SHA-256 hash (tamper-proof)\n\nWhen regulators ask \"prove this campaign was compliant\" - you hand them the receipt.",
+      "metadata": {
+        "filename": "faq",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "FAQ: How is TrustEye different from Jasper?"
+      }
+    }
+  ],
+  [
+    "trusteye-system:faq:What_integrations_does_TrustEy",
+    {
+      "id": "trusteye-system:faq:What_integrations_does_TrustEy",
+      "content": "## FAQ: What integrations does TrustEye have?\n\nTrustEye integrates with:\n- **Birdeye** - Customer reviews, contacts, competitor data\n- **Slack** - Team notifications and approval workflow\n- **Resend** - Email delivery\n- **Late.dev** - Social media posting\n- **Supabase** - Database for campaigns and receipts",
+      "metadata": {
+        "filename": "faq",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "FAQ: What integrations does TrustEye have?"
+      }
+    }
+  ],
+  [
+    "trusteye-system:faq:What_is_the_3_gate_approval_sy",
+    {
+      "id": "trusteye-system:faq:What_is_the_3_gate_approval_sy",
+      "content": "## FAQ: What is the 3-gate approval system?\n\nEvery campaign goes through 3 gates:\n\n**Gate 1: Rules** - Automated checks for CAN-SPAM, GDPR, profanity, PII. Pass or Fail.\n\n**Gate 2: AI Review** - Brand score, toxicity check, copyright risk. Probabilistic scoring.\n\n**Gate 3: Human Approval** - Slack notification, real person must click Approve. AI cannot bypass this gate.\n\nThis creates an audit trail for every campaign.",
+      "metadata": {
+        "filename": "faq",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "FAQ: What is the 3-gate approval system?"
+      }
+    }
+  ],
+  [
+    "trusteye-system:faq:Can_AI_approve_campaigns_by_it",
+    {
+      "id": "trusteye-system:faq:Can_AI_approve_campaigns_by_it",
+      "content": "## FAQ: Can AI approve campaigns by itself?\n\nNo. Gate 3 (Human Approval) is non-delegable. The system verifies the click came from a real human by checking interaction duration, session verification, and identity. AI cannot bypass this gate. Every approval creates an audit trail showing who approved, when, and how long they reviewed it.",
+      "metadata": {
+        "filename": "faq",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "FAQ: Can AI approve campaigns by itself?"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:0",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:0",
+      "content": "# Campaign Taxonomy & Query Mapping\n\n**Created:** January 23, 2026  \n**Purpose:** Handle ANY marketing query by mapping to structured campaigns\n\n---\n\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Campaign Taxonomy & Query Mapping"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:1",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:1",
+      "content": "## The Problem\n\nBirdeye will test with queries like:\n- \"Send a promo to all customers\"\n- \"Post on Instagram about our new service\"\n- \"Create a loyalty program\"\n- \"Remind inactive customers\"\n\nThe LLM needs to know:\n1. **Is this a campaign or content?** (Don't send individual social posts as campaigns)\n2. **What type of campaign?** (Map to our 15 types)\n3. **What dimensions matter?** (Audience, content, channel, schedule, objective)\n\n---\n\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "The Problem"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:2",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:2",
+      "content": "## Campaign vs. Content (Critical Distinction)\n\n| Query Type | What It Is | Action |\n|------------|------------|--------|\n| **Campaign** | Targeted outreach to a specific audience | Create campaign → 3-gate approval → Send |\n| **Content** | Brand engagement, not audience-targeted | Create content → Store in library |\n\n### Examples\n\n| User Says | Type | Why |\n|-----------|------|-----|\n| \"Send thank you email to 5-star reviewers\" | ✅ Campaign | Audience-targeted, personalized |\n| \"Post on Instagram about new car launch\" | ❌ Content | Brand engagement, not targeted |\n| \"Remind customers who haven't visited in 90 days\" | ✅ Campaign | Audience-targeted, trigger-based |\n| \"Create LinkedIn post about team achievement\" | ❌ Content | Social brand content |\n| \"Send birthday emails\" | ✅ Campaign | Audience-targeted, scheduled |\n| \"Tweet about quick service tips\" | ❌ Content | Social brand content |\n\n**Rule:** If it says \"send to [audience]\" → Campaign. If it says \"post/create [content]\" → Content.\n\n---\n\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Campaign vs. Content (Critical Distinction)"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:3",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:3",
+      "content": "## Campaign Type Mapping\n\n### Our 15 Campaign Types\n\n| Type | Trigger Words | Objective | Typical Channel |\n|------|---------------|-----------|-----------------|\n| **referral** | referral, refer a friend, bring a friend | Drive word-of-mouth | Email |\n| **recovery** | recovery, complaint, negative, upset, apologize | Win back unhappy customers | Email + Phone |\n| **win-back** | win-back, winback, inactive, lapsed, haven't seen | Re-engage inactive | Email + SMS |\n| **conquest** | conquest, competitor, switch, new customer | Steal competitor customers | Email + Direct Mail |\n| **service** | service reminder, maintenance, oil change | Drive service visits | Email + SMS |\n| **birthday** | birthday, anniversary, celebrate | Build loyalty with occasions | Email |\n| **welcome** | welcome, onboarding, new customer, first purchase | Nurture new customers | Email series |\n| **loyalty** | loyalty, VIP, rewards, points, tier | Reward best customers | Email |\n| **promotional** | promo, sale, discount, offer, deal | Drive immediate sales | Email + SMS |\n| **product-launch** | new product, launch, introducing, unveiling | Announce new offerings | Email + Social |\n| **nurture** | nurture, educate, tips, how-to | Build relationships | Email series |\n| **event** | event, webinar, workshop, open house | Drive attendance | Email + SMS |\n| **feedback** | feedback, survey, review request | Gather insights | Email |\n| **announcement** | announcement, news, update | Share information | Email |\n| **review** | review request, testimonial, rating | Generate reviews | Email + SMS |\n\n---\n\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Campaign Type Mapping"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:4",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:4",
+      "content": "## The 5 Dimensions Framework\n\nEvery campaign query should be mapped across these dimensions:\n\n### 1. **Audience** (WHO)\n\n| Audience Type | Query Signals | Example |\n|---------------|---------------|---------|\n| **Existing** | \"customers who...\", \"people who bought...\" | \"Customers who bought in 2024\" |\n| **New** | \"new customers\", \"first-time\", \"just signed up\" | \"Welcome new customers\" |\n| **Inactive** | \"haven't visited\", \"lapsed\", \"inactive 30+ days\" | \"Haven't serviced in 6 months\" |\n| **High-value** | \"VIP\", \"top customers\", \"spent over $X\" | \"Customers who spent $5,000+\" |\n| **Segment** | \"in [location]\", \"bought [product]\", \"[age] years old\" | \"Customers near Riverside\" |\n| **Trigger-based** | \"left 5-star review\", \"birthday approaching\" | \"Just left 5-star review\" |\n\n**LLM Task:** Extract audience criteria → Check if audience exists → Create if needed (findOrCreate pattern)\n\n### 2. **Content** (WHAT)\n\n| Content Type | Query Signals | Extract |\n|--------------|---------------|---------|\n| **Offer** | \"25% off\", \"$50 credit\", \"free oil change\" | Specific discount/offer |\n| **Tone** | \"friendly\", \"urgent\", \"professional\" | Emotional tone |\n| **Message** | \"thank you\", \"we miss you\", \"congratulations\" | Core message |\n| **CTA** | \"book appointment\", \"shop now\", \"claim offer\" | Desired action |\n\n**LLM Task:** Extract instructions → Pass to content generator → Apply brand voice\n\n### 3. **Channel** (WHERE)\n\n| Channel | Query Signals | Notes |\n|---------|---------------|-------|\n| **Email** | \"send email\", \"email campaign\", default if not specified | Primary channel |\n| **SMS** | \"text\", \"SMS\", \"send message\" | Short, urgent |\n| **Social** | \"post on Instagram/LinkedIn/Twitter\" | Content, not campaign |\n| **Multi-channel** | \"email and SMS\", \"all channels\" | Coordinate send |\n\n**Rule:** Default to email unless specified. If \"post on [social]\" → Content, not campaign.\n\n### 4. **Schedule** (WHEN)\n\n| Schedule Type | Query Signals | Implementation |\n|---------------|---------------|----------------|\n| **Immediate** | \"now\", \"today\", \"send immediately\" | Queue for send after approval |\n| **Scheduled** | \"tomorrow\", \"next week\", \"January 25\" | Set send date |\n| **Trigger-based** | \"when [event]\", \"after [action]\" | Create automation |\n| **Recurring** | \"every week\", \"monthly\", \"quarterly\" | Create automation with repeat |\n\n**LLM Task:** Extract timing → Set schedule or create automation\n\n### 5. **Objective** (WHY)\n\n| Objective | Query Signals | Success Metric |\n|-----------|---------------|----------------|\n| **Drive sales** | \"promo\", \"discount\", \"buy\", \"purchase\" | Revenue, conversions |\n| **Generate reviews** | \"review\", \"feedback\", \"rating\" | Review count |\n| **Book appointments** | \"schedule\", \"book\", \"appointment\" | Bookings |\n| **Re-engage** | \"win-back\", \"inactive\", \"lapsed\" | Reactivation rate |\n| **Build loyalty** | \"loyalty\", \"VIP\", \"thank you\" | Retention, LTV |\n| **Educate** | \"tips\", \"how-to\", \"guide\" | Engagement, opens |\n\n**LLM Task:** Infer objective → Set appropriate metrics → Show predicted outcomes\n\n---\n\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "The 5 Dimensions Framework"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:5",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:5",
+      "content": "## Query Parsing Rules\n\n### Rule 1: Campaign vs. Content Detection\n\n```typescript\nfunction isCampaign(query: string): boolean {\n  const campaignSignals = [\n    /send (to|email|sms)/i,\n    /customers? who/i,\n    /target/i,\n    /segment/i,\n    /audience/i,\n    /remind/i,\n    /notify/i\n  ];\n  \n  const contentSignals = [\n    /post on/i,\n    /create (instagram|linkedin|twitter|social)/i,\n    /share on/i,\n    /publish/i\n  ];\n  \n  // Check content signals first (more specific)\n  if (contentSignals.some(pattern => pattern.test(query))) {\n    return false; // It's content\n  }\n  \n  // Default to campaign if any campaign signals\n  return campaignSignals.some(pattern => pattern.test(query));\n}\n```\n\n### Rule 2: Campaign Type Inference\n\n```typescript\nfunction inferCampaignType(query: string): CampaignType {\n  const typeMap = {\n    referral: /refer|bring a friend/i,\n    recovery: /recovery|complaint|negative|upset|apolog/i,\n    'win-back': /win-?back|inactive|lapsed|haven't (seen|visited)/i,\n    conquest: /conquest|competitor|switch/i,\n    service: /service (reminder|due)|maintenance|oil change/i,\n    birthday: /birthday|anniversary/i,\n    welcome: /welcome|onboarding|new customer|first (purchase|visit)/i,\n    loyalty: /loyalty|VIP|rewards?|points|tier/i,\n    promotional: /promo|sale|discount|offer|deal/i,\n    'product-launch': /new product|launch|introduc|unveil/i,\n    nurture: /nurture|educat|tips|how-?to|guide/i,\n    event: /event|webinar|workshop|open house/i,\n    feedback: /feedback|survey/i,\n    announcement: /announc|news|update/i,\n    review: /review|testimonial|rating/i\n  };\n  \n  for (const [type, pattern] of Object.entries(typeMap)) {\n    if (pattern.test(query)) {\n      return type as CampaignType;\n    }\n  }\n  \n  return 'promotional'; // Default\n}\n```\n\n### Rule 3: Audience Extraction\n\n```typescript\nfunction extractAudience(query: string): AudienceSpec {\n  // Pattern: \"customers who [condition]\"\n  const whoMatch = query.match(/customers? who (.+?)(?:with|,|$)/i);\n  \n  if (whoMatch) {\n    const condition = whoMatch[1];\n    return {\n      name: deriveAudienceName(condition),\n      conditions: parseCondition(condition),\n      isNew: !audienceExists(deriveAudienceName(condition))\n    };\n  }\n  \n  // Pattern: \"[adjective] customers\"\n  const adjMatch = query.match(/(inactive|new|VIP|top|lapsed) customers?/i);\n  if (adjMatch) {\n    return {\n      name: `${adjMatch[1]} Customers`,\n      conditions: getPresetConditions(adjMatch[1]),\n      isNew: false\n    };\n  }\n  \n  return { name: 'All Customers', conditions: {}, isNew: false };\n}\n```\n\n### Rule 4: Offer Extraction\n\n```typescript\nfunction extractOffer(query: string): string | null {\n  // Percentage discount\n  const percentMatch = query.match(/(\\d+)%\\s*(off|discount)/i);\n  if (percentMatch) {\n    return `Include a ${percentMatch[1]}% discount offer`;\n  }\n  \n  // Dollar amount\n  const dollarMatch = query.match(/\\$(\\d+)\\s*(credit|off|discount)/i);\n  if (dollarMatch) {\n    return `Include a $${dollarMatch[1]} ${dollarMatch[2]} offer`;\n  }\n  \n  // Free item\n  const freeMatch = query.match(/free (.+?)(?:with|for|$)/i);\n  if (freeMatch) {\n    return `Include free ${freeMatch[1]} offer`;\n  }\n  \n  return null;\n}\n```\n\n---\n\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Query Parsing Rules"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:6",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:6",
+      "content": "## Example Query Mappings\n\n### Example 1: Clear Campaign\n**Query:** \"Send thank you email to customers who left 5-star reviews yesterday with 15% discount\"\n\n**Mapping:**\n- **Type:** Campaign (has \"send to customers\")\n- **Campaign Type:** referral\n- **Audience:** \"5-Star Reviewers (Yesterday)\" [NEW]\n  - Conditions: `{ rating: 5, reviewDate: 'yesterday' }`\n- **Content:** \"Thank you message\" + \"15% discount\"\n- **Channel:** Email\n- **Schedule:** Immediate\n- **Objective:** Drive loyalty + Generate referrals\n\n### Example 2: Social Content (NOT Campaign)\n**Query:** \"Create Instagram post about new Nissan GT-R launch\"\n\n**Mapping:**\n- **Type:** Content (has \"create Instagram post\")\n- **Content Type:** Social - Instagram\n- **Topic:** \"New Nissan GT-R launch\"\n- **Action:** Create content → Save to library → Show preview\n\n**DO NOT:** Create a campaign, select audience, or go through 3-gate approval\n\n### Example 3: Ambiguous Query\n**Query:** \"Remind everyone about service\"\n\n**Mapping:**\n- **Type:** Campaign (has \"remind\")\n- **Campaign Type:** service\n- **Audience:** \"All Customers\" (default)\n- **Content:** \"Service reminder\"\n- **Channel:** Email (default)\n- **Schedule:** Immediate (default)\n- **Clarification Needed:** \n  - \"All customers or only those due for service?\"\n  - \"Email only or include SMS?\"\n\n**LLM Response:** \"I'll create a service reminder campaign for all customers via email. Would you like to target only customers who are due for service (e.g., last service > 6 months)?\"\n\n---\n\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Example Query Mappings"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:7",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:7",
+      "content": "## Edge Cases to Handle\n\n### 1. Multi-step Campaigns\n**Query:** \"Send welcome email, then tips after 3 days, then offer after 7 days\"\n\n**Action:** This is an automation (sequence), not a single campaign.\n- Detect: \"then\", \"after [time]\", \"followed by\"\n- Route to: Automations builder, not campaign builder\n\n### 2. Broad Social Queries\n**Query:** \"Generate content for all channels for holiday sale\"\n\n**Action:** Multi-channel content generation\n- Create: Email content, SMS content, Social content (Instagram, LinkedIn, Twitter)\n- Show: All content in one view\n- Allow: Select which to turn into campaigns\n\n### 3. Vague Queries\n**Query:** \"Do something for customers\"\n\n**Action:** Ask clarifying questions\n- \"What would you like to do? (send email, create offer, remind about service, etc.)\"\n- \"Which customers? (all, VIP, inactive, etc.)\"\n\n---\n\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Edge Cases to Handle"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:8",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:8",
+      "content": "## LLM System Prompt Addition\n\nAdd this to your Claude system prompt:\n\n```\nYou are TrustEye's campaign intelligence system. When a user describes a marketing action:\n\n1. FIRST: Determine if it's a CAMPAIGN (targeted to audience) or CONTENT (brand engagement)\n   - Campaigns: \"send to customers\", \"remind\", \"target\", \"notify\"\n   - Content: \"post on Instagram\", \"create LinkedIn post\", \"share on Twitter\"\n\n2. IF CAMPAIGN: Extract these dimensions:\n   - Type: referral, recovery, win-back, conquest, service, birthday, welcome, loyalty, promotional, product-launch, nurture, event, feedback, announcement, review\n   - Audience: WHO (create new if doesn't exist)\n   - Content: WHAT (extract offers, tone, message)\n   - Channel: WHERE (email default, SMS if urgent, never social for campaigns)\n   - Schedule: WHEN (immediate default)\n   - Objective: WHY (infer from type)\n\n3. IF CONTENT: Route to content library\n   - Don't create campaigns for social posts\n   - Don't select audience for brand content\n   - Store in library, don't send\n\n4. IF AMBIGUOUS: Ask clarifying questions\n\n5. ALWAYS: Show what you mapped and why (\"I interpreted this as a [type] campaign targeting [audience]\")\n```\n\n---\n\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "LLM System Prompt Addition"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:9",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:9",
+      "content": "## Testing Queries for Demo\n\nTest these queries to ensure robust handling:\n\n| Query | Expected Type | Expected Campaign Type |\n|-------|---------------|------------------------|\n| \"Send promo to VIP customers\" | Campaign | promotional |\n| \"Post on Instagram about new service\" | Content | - |\n| \"Remind inactive customers we miss them\" | Campaign | win-back |\n| \"Create LinkedIn post about team\" | Content | - |\n| \"Thank 5-star reviewers with discount\" | Campaign | referral |\n| \"Tweet about service tips\" | Content | - |\n| \"Email customers who bought in 2024\" | Campaign | promotional or nurture |\n| \"Generate content for all channels for sale\" | Multi-channel content | - |\n| \"Send birthday wishes\" | Campaign | birthday |\n| \"Share on social about new hours\" | Content | - |\n\n---\n\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Testing Queries for Demo"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:Campaign_Taxonomy.md:10",
+    {
+      "id": "trusteye-system:doc:Campaign_Taxonomy.md:10",
+      "content": "## Implementation Files to Update\n\n1. **`services/src/services/intentParser.ts`**\n   - Add `isCampaign()` function\n   - Add `inferCampaignType()` function\n   - Add dimension extractors\n\n2. **`services/src/services/toolResolver.ts`**\n   - Route to campaign builder vs. content generator\n   - Handle multi-channel requests\n\n3. **`services/src/config/templates.ts`**\n   - Add this taxonomy as reference data\n\n---\n\n*Use this taxonomy to handle ANY marketing query Birdeye throws at you.*\n",
+      "metadata": {
+        "filename": "Campaign_Taxonomy.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Implementation Files to Update"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_Capabilities.md:0",
+    {
+      "id": "trusteye-system:doc:TrustEye_Capabilities.md:0",
+      "content": "# TrustEye AI Marketing Platform - Capabilities\n\n",
+      "metadata": {
+        "filename": "TrustEye_Capabilities.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "TrustEye AI Marketing Platform - Capabilities"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_Capabilities.md:1",
+    {
+      "id": "trusteye-system:doc:TrustEye_Capabilities.md:1",
+      "content": "## What is TrustEye?\n\nTrustEye is an AI marketing layer that sits on top of Birdeye. It reads real customer data (reviews, contacts) and creates smart, compliant marketing campaigns automatically.\n\n**Key differentiator:** \"Jasper says 'trust us.' TrustEye says 'here's the proof.'\"\n\nTrustEye provides visible, verifiable, receipted proof of every AI action - not just a promise of trust.\n\n---\n\n",
+      "metadata": {
+        "filename": "TrustEye_Capabilities.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "What is TrustEye?"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_Capabilities.md:2",
+    {
+      "id": "trusteye-system:doc:TrustEye_Capabilities.md:2",
+      "content": "## Core Capabilities\n\n### 1. Create Marketing Campaigns\nTrustEye can create three types of campaigns from real Birdeye data:\n\n**Referral Campaign (from 5-star reviews)**\n- Identifies customers who left 5-star reviews\n- Creates personalized thank-you emails asking for referrals\n- Offers reciprocal benefits ($100 for both parties)\n- Best sent within 48 hours of the review\n\n**Conquest Campaign (from competitor weaknesses)**\n- Analyzes competitor reviews (e.g., Valley Honda)\n- Identifies their weaknesses (slow service, hidden fees)\n- Creates targeted campaigns highlighting our strengths\n- Uses competitive intelligence from brand knowledge\n\n**Recovery Campaign (from negative reviews)**\n- Monitors 1-2 star reviews in real-time\n- Creates immediate recovery outreach\n- Personal manager follow-up increases resolution by 40%\n- 20% discount optimal for win-back\n\n### 2. 3-Gate Approval System\nEvery campaign goes through 3 gates before sending:\n\n**Gate 1: Rules Engine (Automated)**\n- CAN-SPAM compliance check\n- GDPR requirements\n- Required fields validation\n- Profanity filter\n- PII detection\n- Unsubscribe link verification\n- Deterministic: Pass or Fail\n\n**Gate 2: AI Review (Automated)**\n- Brand score calculation (target: 85%+)\n- Toxicity check (target: 0%)\n- Copyright risk assessment\n- Tone alignment\n- Probabilistic: Smart pattern matching\n\n**Gate 3: Human Approval (Manual)**\n- Slack notification with Approve/Reject buttons\n- Shows who approved, when, interaction duration\n- Non-negotiable: AI cannot approve itself\n- Creates audit trail\n\n### 3. Compliance Receipts\nEvery campaign generates an immutable compliance receipt:\n- Gate 1 results (rules checked)\n- Gate 2 results (AI scores)\n- Gate 3 results (who approved, when)\n- SHA-256 hash for tamper-proof verification\n- Downloadable as PDF or JSON\n\n### 4. Feedback Loop (\"What Changed Since Last Time\")\nThe system learns and adapts:\n- Remembers past campaign performance\n- Shows adjustments made based on data\n- Example adjustments:\n  - \"Excluded customers with unresolved negative reviews\" (73% lower conversion)\n  - \"Increased wait time from 2 to 5 days\" (45% lower open rates when contacted too soon)\n  - \"Prioritized referral over discount offers\" (VIP customers respond 2.3x better)\n\n### 5. Brand Voice Enforcement\n- Learns brand voice from uploaded documents\n- Calculates brand alignment score (0-100%)\n- Ensures consistent messaging across all channels\n- Premier Nissan voice: Professional, Trustworthy, Community-focused\n\n---\n\n",
+      "metadata": {
+        "filename": "TrustEye_Capabilities.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Core Capabilities"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_Capabilities.md:3",
+    {
+      "id": "trusteye-system:doc:TrustEye_Capabilities.md:3",
+      "content": "## Available Tools\n\n### Demo Site Tools\n- **Trigger Loyalty Campaign**: Show loyalty banner on website\n- **Update Display Ad**: Change display ad content\n- **Push Site Notification**: Show notification toast to visitors\n\n### Email Tools\n- **Send Email Campaign**: Send to audience segment via Resend\n- **Send Single Email**: Send to one recipient\n\n### Slack Tools\n- **Send Slack Notification**: Post message to Slack channel\n- **Request Slack Approval**: Send approval request with buttons\n\n### SMS Tools\n- **Send SMS Campaign**: Send SMS via Birdeye\n\n### Social Media Tools\n- **Post to Social Media**: Post via Late.dev to Facebook, Instagram, Twitter, LinkedIn\n\n### Data Tools\n- **Get Audience Segment**: Retrieve audience details\n- **Create Audience Segment**: Build new audience with conditions\n- **Get Birdeye Reviews**: Fetch reviews with filters\n- **Analyze Reviews**: AI sentiment and theme analysis\n- **Get Competitor Insights**: Fetch competitor data\n- **Create Campaign**: Create marketing campaign\n- **Generate Content**: AI-generate marketing content with brand voice\n\n---\n\n",
+      "metadata": {
+        "filename": "TrustEye_Capabilities.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Available Tools"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_Capabilities.md:4",
+    {
+      "id": "trusteye-system:doc:TrustEye_Capabilities.md:4",
+      "content": "## Integrations\n\n| Integration | Purpose |\n|-------------|---------|\n| Birdeye | Customer reviews, contacts, competitor data |\n| Slack | Team notifications, approval workflow |\n| Resend | Email delivery |\n| Late.dev | Social media posting |\n| Supabase | Database for campaigns, audiences, receipts |\n\n---\n\n",
+      "metadata": {
+        "filename": "TrustEye_Capabilities.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Integrations"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_Capabilities.md:5",
+    {
+      "id": "trusteye-system:doc:TrustEye_Capabilities.md:5",
+      "content": "## Campaign Templates\n\nTrustEye includes 8 pre-built campaign templates:\n\n1. **5-Star Referral Request** - 34.2% open rate\n2. **Win-Back Campaign** - 22.4% open rate\n3. **Service Reminder** - 28.1% open rate\n4. **Recovery Campaign** - 31.5% open rate\n5. **New Customer Welcome** - 41.2% open rate\n6. **VIP Loyalty Reward** - 38.2% open rate\n7. **Conquest Campaign** - 24.8% open rate\n8. **Birthday Celebration** - 52.3% open rate\n\n---\n\n",
+      "metadata": {
+        "filename": "TrustEye_Capabilities.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Campaign Templates"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_Capabilities.md:6",
+    {
+      "id": "trusteye-system:doc:TrustEye_Capabilities.md:6",
+      "content": "## Workflow Automations\n\nTrustEye can create automated workflows:\n\n**Example: \"When a 5-star review is received, send thank you email and notify Slack\"**\n- Trigger: Birdeye webhook for 5-star review\n- Action 1: Send personalized thank you email\n- Action 2: Notify #customer-wins on Slack\n\n**Available Triggers:**\n- Review received (by rating)\n- Appointment scheduled\n- Customer inactive for X days\n- First purchase\n\n**Available Actions:**\n- Send email\n- Send Slack notification\n- Create campaign\n- Add to audience\n",
+      "metadata": {
+        "filename": "TrustEye_Capabilities.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Workflow Automations"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_FAQ.md:0",
+    {
+      "id": "trusteye-system:doc:TrustEye_FAQ.md:0",
+      "content": "# TrustEye Frequently Asked Questions\n\n",
+      "metadata": {
+        "filename": "TrustEye_FAQ.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "TrustEye Frequently Asked Questions"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_FAQ.md:1",
+    {
+      "id": "trusteye-system:doc:TrustEye_FAQ.md:1",
+      "content": "## General Questions\n\n### What can TrustEye do?\nTrustEye can create three types of marketing campaigns from your real Birdeye data:\n1. **Referral campaigns** from 5-star reviews - identify happy customers and ask for referrals\n2. **Conquest campaigns** based on competitor weaknesses - target customers unhappy with competitors like Valley Honda\n3. **Recovery campaigns** from negative reviews - immediately reach out to unhappy customers\n\nAll campaigns go through 3-gate approval (Rules, AI, Human) before sending. The system learns from past performance and shows you \"what changed since last time.\"\n\nWant me to create one of these campaigns?\n\n### How is TrustEye different from Jasper?\nJasper has what they call a \"Trust Foundation\" - infrastructure underneath their tools. It's a promise.\n\nTrustEye has a \"Trust Layer\" - verification that's visible, auditable, and defensible. It's evidence.\n\n**Jasper says \"trust us.\" TrustEye says \"here's the proof.\"**\n\nEvery campaign in TrustEye generates a compliance receipt with:\n- What rules were checked\n- AI review scores\n- Who approved it and when\n- SHA-256 hash (tamper-proof)\n\nWhen regulators ask \"prove this campaign was compliant\" - you hand them the receipt.\n\n### What integrations exist?\nTrustEye integrates with:\n- **Birdeye** - Customer reviews, contacts, competitor data\n- **Slack** - Team notifications and approval workflow\n- **Resend** - Email delivery (with in10.ai domain)\n- **Late.dev** - Social media posting to Facebook, Instagram, Twitter, LinkedIn\n- **Supabase** - Database for campaigns, audiences, and receipts\n\n### What is the 3-gate approval system?\nEvery campaign goes through 3 gates before sending:\n\n**Gate 1: Rules Engine** (Automated)\n- CAN-SPAM, GDPR compliance\n- Profanity filter, PII detection\n- Required fields check\n- Binary: Pass or Fail\n\n**Gate 2: AI Review** (Automated)\n- Brand score (target 85%+)\n- Toxicity check (target 0%)\n- Copyright risk assessment\n- Probabilistic scoring\n\n**Gate 3: Human Approval** (Manual)\n- Slack notification with Approve/Reject\n- Records who approved, when, how long they reviewed\n- Non-negotiable: AI cannot approve itself\n\n### How does brand voice work?\nTrustEye learns your brand voice from uploaded documents:\n1. Upload brand guidelines, past campaigns, style guides\n2. TrustEye indexes and learns the patterns\n3. When generating content, it scores against your brand voice\n4. Brand Score shows alignment (0-100%)\n\nFor Premier Nissan, the voice is:\n- Professional yet friendly\n- Trustworthy and transparent\n- Community-focused\n- Value-conscious (not cheap)\n\n---\n\n",
+      "metadata": {
+        "filename": "TrustEye_FAQ.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "General Questions"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_FAQ.md:2",
+    {
+      "id": "trusteye-system:doc:TrustEye_FAQ.md:2",
+      "content": "## Campaign Questions\n\n### How do I create a referral campaign?\nSay: \"Create a referral campaign from 5-star reviews\"\n\nTrustEye will:\n1. Find customers who left 5-star reviews recently\n2. Generate a personalized thank-you email\n3. Include a referral ask with reciprocal benefit\n4. Send through 3-gate approval\n\nBest practice: Send within 48 hours of the review for best response.\n\n### How do I create a conquest campaign?\nSay: \"Create a conquest campaign targeting Valley Honda customers\"\n\nTrustEye will:\n1. Analyze Valley Honda's weaknesses from competitor data\n2. Identify their pain points (slow service, hidden fees)\n3. Create content highlighting our strengths\n4. Target relevant audience segments\n\n### How do I create a recovery campaign?\nSay: \"Create a recovery campaign for negative reviews\"\n\nTrustEye will:\n1. Find customers with 1-2 star reviews\n2. Create personalized recovery outreach\n3. Include appropriate offer (20% is optimal for win-back)\n4. Route for immediate human approval\n\nBest practice: Respond within 2 hours of negative review.\n\n---\n\n",
+      "metadata": {
+        "filename": "TrustEye_FAQ.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Campaign Questions"
+      }
+    }
+  ],
+  [
+    "trusteye-system:doc:TrustEye_FAQ.md:3",
+    {
+      "id": "trusteye-system:doc:TrustEye_FAQ.md:3",
+      "content": "## Technical Questions\n\n### What guardrails does TrustEye check?\nTrustEye runs 17 guardrails including:\n- No hate speech\n- No profanity\n- Brand name present\n- Unsubscribe link included\n- No competitor mentions\n- No PII exposed\n- Appropriate tone\n- Required legal elements\n\n### How does the feedback loop work?\nTrustEye shows \"What changed since last time\" - adjustments made based on past performance:\n\nExample adjustments:\n- \"Excluded customers with unresolved negative reviews\" (73% lower conversion)\n- \"Increased wait time from 2 to 5 days\" (45% better open rates)\n- \"Prioritized referral over discount\" (VIP responds 2.3x better)\n\nThis demonstrates the system has:\n- **Memory** - remembers past results\n- **Causality** - understands why things worked\n- **Adaptation** - changes behavior automatically\n- **Control** - shows you what changed\n\n### Can AI approve campaigns by itself?\nNo. Gate 3 (Human Approval) is non-delegable. The system verifies:\n- Click came from a human\n- Interaction duration (not instant)\n- Session verification\n- Identity validation\n\nAI cannot bypass this gate. Every approval creates an audit trail.\n",
+      "metadata": {
+        "filename": "TrustEye_FAQ.md",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Technical Questions"
+      }
+    }
+  ],
+  [
+    "trusteye-system:templates:summary",
+    {
+      "id": "trusteye-system:templates:summary",
+      "content": "# Campaign Templates\n\nTrustEye includes 8 pre-built campaign templates:\n\n- **5-Star Referral Request** (referral): 34.2% open rate - 5-star reviewers, VIP customers\n- **Win-Back Campaign** (winback): 22.4% open rate - Lapsed customers (90+ days inactive)\n- **Service Reminder** (service): 28.1% open rate - Customers due for service\n- **Recovery Campaign** (recovery): 31.5% open rate - Customers with negative reviews or complaints\n- **New Customer Welcome** (welcome): 41.2% open rate - New customers (first purchase)\n- **VIP Loyalty Reward** (loyalty): 38.2% open rate - VIP customers (5+ services)\n- **Conquest Campaign** (conquest): 24.8% open rate - Customers of competitors, conquest leads\n- **Birthday Celebration** (birthday): 52.3% open rate - Customers with birthdays this month\n\nEach template:\n- Written in Premier Nissan's brand voice\n- Has predicted performance metrics\n- Includes best practices\n- Can be customized per customer",
+      "metadata": {
+        "filename": "templates",
+        "brandId": "trusteye-system",
+        "type": "general",
+        "section": "Campaign Templates"
+      }
+    }
+  ],
+  [
+    "audience-1769168040490",
+    {
+      "id": "audience-1769168040490",
+      "content": "Mike Mentioners: Customers who mentioned 'Mike' in their product or service reviews\nOriginal request: create audience of customers who mentioned Mike in reviews",
+      "metadata": {
+        "filename": "Mike Mentioners",
+        "brandId": "marketing-patterns",
+        "type": "general",
+        "section": "audience",
+        "lastUpdated": "2026-01-23T11:34:00.490Z",
+        "name": "Mike Mentioners",
+        "assetType": "audience",
+        "criteria": "{\"filters\":[{\"field\":\"review_text\",\"operator\":\"contains\",\"value\":\"Mike\"}]}",
+        "tags": [
+          "reviews",
+          "mentions",
+          "mike",
+          "feedback"
+        ],
+        "source": "auto-created",
+        "createdAt": "2026-01-23T11:34:00.490Z"
+      }
+    }
   ]
 ]

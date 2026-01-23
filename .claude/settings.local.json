@@ -17,7 +17,11 @@
       "Bash(__NEW_LINE_01fdda487c4b3d27__ echo \"\")",
       "Bash(# Check Resend API key status grep -q \"\"RESEND_API_KEY\"\" /Users/sj/dev/kq-studio/services/.env && echo \"\"RESEND_API_KEY is set\"\" || echo \"\"RESEND_API_KEY missing\"\" # Check TEST_EMAIL grep \"\"TEST_EMAIL\"\" /Users/sj/dev/kq-studio/services/.env)",
       "Bash(lsof:*)",
-      "Bash(npm run test:run:*)"
+      "Bash(npm run test:run:*)",
+      "Bash(export RAILWAY_TOKEN=f195fcf4-124b-4b2d-b3ef-8d8c070de645)",
+      "Bash(railway whoami:*)",
+      "Bash(railway status:*)",
+      "Bash(railway domain:*)"
     ]
   }
 }

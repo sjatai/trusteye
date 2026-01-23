@@ -14,6 +14,7 @@ import intelligence from '../services/intelligenceOrchestrator';
 import { parseIntent, quickParse } from '../services/intentParser';
 import { calculateConfidence } from '../services/confidenceScorer';
 import { getLearningStats, recordCorrection } from '../services/learningEngine';
+import marketingEngine, { handleMarketingIntent, seedMarketingPatterns, EngineContext } from '../services/marketingEngine';
 
 const router = Router();
 
@@ -44,6 +45,64 @@ router.post('/chat', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to process chat message'
+    });
+  }
+});
+
+// ============================================
+// MARKETING ENGINE
+// ============================================
+
+// POST /api/ai/engine - Marketing Intelligence Engine
+// Routes to: RAG | Patch | Match | Create modes
+router.post('/engine', async (req: Request, res: Response) => {
+  try {
+    const { message, activeDraft, brandId, userId } = req.body;
+
+    if (!message) {
+      return res.status(400).json({
+        success: false,
+        error: 'Message is required'
+      });
+    }
+
+    const context: EngineContext = {
+      activeDraft: activeDraft || undefined,
+      brandId: brandId || 'premier-nissan',
+      userId
+    };
+
+    const result = await handleMarketingIntent(message, context);
+
+    res.json({
+      success: true,
+      mode: result.mode,
+      data: result.data,
+      message: result.message,
+      confidence: result.confidence
+    });
+  } catch (error) {
+    console.error('Marketing engine error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process marketing intent'
+    });
+  }
+});
+
+// POST /api/ai/engine/seed - Seed marketing patterns (run once)
+router.post('/engine/seed', async (req: Request, res: Response) => {
+  try {
+    await seedMarketingPatterns();
+    res.json({
+      success: true,
+      message: 'Marketing patterns seeded successfully'
+    });
+  } catch (error) {
+    console.error('Seed error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to seed marketing patterns'
     });
   }
 });
