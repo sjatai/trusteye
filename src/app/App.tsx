@@ -88,6 +88,7 @@ export default function App() {
   const [contentSectionScroll, setContentSectionScroll] = useState<'email' | 'sms' | 'social' | 'banners' | 'brandTone' | null>(null);
   const [dynamicContentLibrary, setDynamicContentLibrary] = useState<ContentItem[]>(initialContentLibrary);
   const [brandTone, setBrandTone] = useState<BrandTone>(defaultBrandTone);
+  const [selectedAudience, setSelectedAudience] = useState<any>(null);
 
   // Handle workflow state changes from WorkflowBlocks
   const handleWorkflowStateChange = (updates: Partial<WorkflowState>) => {
@@ -992,12 +993,26 @@ export default function App() {
             const created = createResult.data;
             const isNew = createResult.created;
 
+            // Set the selected audience and show in inspector
+            const audienceData = {
+              id: created.id,
+              name: audienceName,
+              count: created.estimated_size || estimatedSize,
+              description: audienceDescription,
+              criteria: Object.entries(conditions).map(([k, v]) => `${k}: ${v}`),
+              conditions: conditions,
+              isNew: isNew,
+            };
+            setSelectedAudience(audienceData);
+            setInspectorType('segment');
+            setInspectorData(audienceData);
+
             content = isNew
               ? `✅ **Audience Created: "${audienceName}"**\n\n`
               : `✅ **Found Existing Audience: "${audienceName}"**\n\n`;
             content += `👥 **Size:** ${created.estimated_size?.toLocaleString() || estimatedSize.toLocaleString()} customers\n`;
             content += `📋 **Criteria:** ${audienceDescription}\n\n`;
-            content += `**Next steps:**\n• Say "create campaign for this audience" to target them\n• Or click the audience card to see more details`;
+            content += `**Next steps:**\n• Click **"Create Campaign with this Segment"** in the right panel\n• Or say "create campaign for this audience"`;
           } else {
             content = `❌ Failed to create audience: ${createResult.error || 'Unknown error'}`;
           }
@@ -4566,6 +4581,44 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
   // Audiences page
   if (activePage === 'audiences') {
     const pageHasMessages = (pageMessages['audiences'] || []).length > 0;
+
+    // Handler to create campaign from selected audience
+    const handleCreateCampaignFromAudience = () => {
+      if (selectedAudience) {
+        // Navigate to Studio with audience pre-selected
+        setActivePage('studio');
+        // Set up workflow state with the audience
+        setWorkflowState({
+          audience: selectedAudience.name,
+          audienceDescription: selectedAudience.description,
+          audienceSize: selectedAudience.count,
+        });
+        // Create initial campaign data
+        setCurrentCampaign({
+          audienceId: selectedAudience.id,
+          audienceName: selectedAudience.name,
+          audienceDescription: selectedAudience.description,
+          audienceSize: selectedAudience.count,
+          status: 'draft',
+        });
+        // Clear the selected audience
+        setSelectedAudience(null);
+        // Add a message to Studio
+        setPageMessages(prev => ({
+          ...prev,
+          studio: [{
+            id: `assistant-${Date.now()}`,
+            type: 'assistant',
+            content: `**Audience Selected: "${selectedAudience.name}"**\n\n👥 **Size:** ${selectedAudience.count?.toLocaleString()} customers\n📋 **Criteria:** ${selectedAudience.description}\n\n**Next:** What kind of campaign would you like to create?\n• "Create referral campaign"\n• "Create thank you email"\n• "Create promotional campaign"`,
+            timestamp: new Date(),
+          }],
+        }));
+        // Reset inspector for Studio
+        setInspectorType('empty');
+        setInspectorData(null);
+      }
+    };
+
     return (
       <div className="h-screen flex bg-slate-50 overflow-hidden">
         <Sidebar activeTool={activePage} onToolChange={handlePageChange} />
@@ -4605,8 +4658,17 @@ Respond with JSON only: {"intent": "ACTION_NAME", "details": "extracted details 
           </div>
         </div>
 
-        {/* Right: Inspector */}
-        <InspectorPanel type="empty" />
+        {/* Right: Inspector - show segment when audience is selected */}
+        <InspectorPanel
+          type={selectedAudience ? 'segment' : 'empty'}
+          data={selectedAudience}
+          onCreateCampaign={handleCreateCampaignFromAudience}
+          onClose={() => {
+            setSelectedAudience(null);
+            setInspectorType('empty');
+            setInspectorData(null);
+          }}
+        />
       </div>
     );
   }

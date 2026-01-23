@@ -1015,7 +1015,10 @@ export const InspectorPanel = memo(function InspectorPanel({ type = 'empty', dat
       <div className="w-[360px] bg-white border-l border-slate-200 h-screen flex flex-col overflow-y-auto">
         {/* Header */}
         <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10">
-          <h3 className="text-[15px] font-semibold text-slate-900">Segment Preview</h3>
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-indigo-600" />
+            <h3 className="text-[15px] font-semibold text-slate-900">Audience Segment</h3>
+          </div>
           {onClose && (
             <button
               onClick={onClose}
@@ -1026,52 +1029,93 @@ export const InspectorPanel = memo(function InspectorPanel({ type = 'empty', dat
           )}
         </div>
 
-        {/* Segment Data */}
+        {/* Segment Data - Receipt Style */}
         <div className="p-5 space-y-4">
-          <div>
-            <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide mb-1 block">
+          {/* New/Existing Badge */}
+          {data?.isNew !== undefined && (
+            <div className="flex items-center gap-2">
+              <div className={`inline-flex px-3 py-1 rounded-full text-[11px] font-semibold ${
+                data.isNew
+                  ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                  : 'bg-sky-50 border border-sky-200 text-sky-700'
+              }`}>
+                {data.isNew ? '✨ New Segment' : '📂 Existing Segment'}
+              </div>
+            </div>
+          )}
+
+          {/* Segment Name */}
+          <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200">
+            <div className="text-[10px] font-semibold text-indigo-600 uppercase tracking-wide mb-1">
               Segment Name
-            </label>
-            <p className="text-[15px] font-semibold text-slate-900">
+            </div>
+            <p className="text-[18px] font-bold text-indigo-900">
               {data?.name || 'Untitled Segment'}
             </p>
           </div>
 
           {/* Profile Count */}
-          <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200">
-            <div className="text-[11px] font-medium text-indigo-700 uppercase tracking-wide mb-2">
-              Total Profiles
+          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200">
+            <div className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide mb-1">
+              Total Customers
             </div>
-            <p className="text-[28px] font-bold text-indigo-900">
+            <p className="text-[32px] font-bold text-emerald-900">
               {data?.count?.toLocaleString() || '0'}
             </p>
+            <p className="text-[11px] text-emerald-700 mt-1">Ready to target</p>
           </div>
 
+          {/* Description */}
+          {data?.description && (
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                Description
+              </div>
+              <p className="text-[13px] text-slate-700">
+                {data.description}
+              </p>
+            </div>
+          )}
+
           {/* Criteria */}
-          {data?.criteria && (
-            <div>
-              <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide mb-2 block">
-                Criteria
-              </label>
+          {data?.criteria && data.criteria.length > 0 && (
+            <div className="p-4 rounded-xl border border-slate-200">
+              <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-3">
+                Targeting Criteria
+              </div>
               <div className="space-y-2">
                 {data.criteria.map((criterion: string, index: number) => (
-                  <div key={index} className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-[12px] text-slate-700">
-                    • {criterion}
+                  <div key={index} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-50 border border-indigo-200">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                    <span className="text-[12px] text-indigo-800">{criterion}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Next Steps Hint */}
+          <div className="p-3 rounded-lg bg-sky-50 border border-sky-200">
+            <p className="text-[11px] text-sky-700 leading-relaxed">
+              💡 Click the button below to create a campaign targeting this audience segment.
+            </p>
+          </div>
         </div>
 
         {/* Actions Footer */}
-        <div className="mt-auto border-t border-slate-200 p-4 bg-white space-y-2 sticky bottom-0">
-          <button className="w-full px-4 py-3 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white text-[13px] font-semibold hover:shadow-md transition-all">
-            Use This Segment
-          </button>
-          <button className="w-full px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-700 text-[12px] font-semibold hover:bg-slate-50 transition-all">
-            Edit Criteria
-          </button>
+        <div className="mt-auto border-t border-slate-200 p-4 bg-gradient-to-br from-indigo-50 to-white space-y-2 sticky bottom-0">
+          {onCreateCampaign && (
+            <button
+              onClick={onCreateCampaign}
+              className="w-full px-4 py-3 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white text-[13px] font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create Campaign with this Segment
+            </button>
+          )}
+          <p className="text-[10px] text-slate-500 text-center">
+            Takes you to AI Studio with this audience pre-selected
+          </p>
         </div>
       </div>
     );
